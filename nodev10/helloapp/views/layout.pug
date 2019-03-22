@@ -1,0 +1,15 @@
+doctype html
+html
+	head
+		title= title
+		link(rel='stylesheet', href='/stylesheets/style.css')
+	
+	body
+		div.Page_Header All The Ciphers
+		div.Nav_Bar 
+			a(href="http://127.0.0.1:5000") Home
+			a(href="http://127.0.0.1:5000/ciphers/caesar") Caesar Cipher & ROT13
+			a(href="http://127.0.0.1:5000/ciphers/Substitution") Substitution Cipher
+			a(href="http://127.0.0.1:5000/ciphers/morse") Morse
+		div.Grid_Layout
+			block content
