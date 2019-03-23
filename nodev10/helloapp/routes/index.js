@@ -16,7 +16,7 @@ router.get('/ciphers/caesar', function(req, res, next) {
 	let InputArea = "When you select a Cipher Method This is where you will be able to enter text and click the buttons to do the work";
 	let OutputArea = "Any outputs will appear here!";
 	res.render('ciphers', 
-	{ 	title: 'The ceasar Route',
+	{ 	title: 'Caesar Cipher Rot13',
 		CipherInfo: CipherInfo,
 		CipherHelp: CipherHelp,
 		MethodSelector: MethodSelector,
@@ -28,13 +28,13 @@ router.get('/ciphers/caesar', function(req, res, next) {
 
 
 router.get('/ciphers/substitution', function(req, res, next) {
-  res.render('ciphers', { title: 'The substitution Route' });
+  res.render('ciphers', { title: 'Subsituation Cipher' });
 });
 
 
 
 router.get('/ciphers/morse', function(req, res, next) {
-  res.render('ciphers', { title: 'The morse Route' });
+  res.render('ciphers', { title: 'Morse Code' });
 });
 
 

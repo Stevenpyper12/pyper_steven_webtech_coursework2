@@ -46,7 +46,7 @@ function Caesar_encrypt(key){
 	plaintext = plaintext.toUpperCase();
 	
 	var message = "encrypting the text - " + plaintext + "with a key of -" + key;
-	document.getElementById("Output_Area").innerHTML = message;
+	document.getElementById("OutputArea").innerHTML = message;
 	var ciphertext = "";
 	var newletter = "";
 	//checks if the key is outside of the range -25 to 25, if it is it will do maths to find the remainder and then use that as a key(stops issues that were discovered during testing)
@@ -81,7 +81,7 @@ function Caesar_encrypt(key){
 		ciphertext = ciphertext+newletter;	
 	}
 	//gets outpuot to the user
-	document.getElementById("Output_Area").innerHTML = "encrypted message is :" +ciphertext;
+	document.getElementById("OutputArea").innerHTML = "encrypted message is :" +ciphertext;
 }
 
 //very similar to the encryption function however must have some small differences to allow it to be delbt with differently
@@ -93,7 +93,7 @@ function Caesar_decrypt(key){
 	ciphertext = document.getElementById("inputtext").value;
 	ciphertext = ciphertext.toUpperCase();
 	var message = "decrypting the text - " + ciphertext + "with a key of -" + key;
-	document.getElementById("Output_Area").innerHTML = message;
+	document.getElementById("OutputArea").innerHTML = message;
 	var plaintext = "";
 	var newletter = "";
 	if(key > 25 || key < -26)
@@ -119,7 +119,7 @@ function Caesar_decrypt(key){
 		}
 		plaintext = plaintext+newletter;	
 	}
-	document.getElementById("Output_Area").innerHTML = "decrypted message is :" +plaintext;
+	document.getElementById("OutputArea").innerHTML = "decrypted message is :" +plaintext;
 
 }
 
@@ -127,7 +127,7 @@ function Caesar_crack(){
 	ciphertext = document.getElementById("inputtext").value;
 	ciphertext = ciphertext.toUpperCase();
 	var message = "attempting to crack the text - " + ciphertext + "with all keys";
-	document.getElementById("Output_Area").innerHTML = message;
+	document.getElementById("OutputArea").innerHTML = message;
 	
 	var plaintext = "<br>";
 	var newletter = "";
@@ -153,6 +153,6 @@ function Caesar_crack(){
 			plaintext = plaintext+newletter;	
 		}
 		plaintext =plaintext + "<br>";
-		document.getElementById("Output_Area").innerHTML = "decrypted message is :" +plaintext;
+		document.getElementById("OutputArea").innerHTML = "decrypted message is :" +plaintext;
 	}
 }

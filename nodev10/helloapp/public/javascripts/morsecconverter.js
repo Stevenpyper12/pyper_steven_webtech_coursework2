@@ -108,7 +108,7 @@ function texttomorse()
 		}
 	}
 	 //prints ot the output and alerts the user if there was any issues
-	document.getElementById("Output_Area").innerHTML = "the morse text is :" + morsetext;
+	document.getElementById("OutputArea").innerHTML = "the morse text is :" + morsetext;
 	if(undefinedfound == 1)
 	{
 		alert("one of the characters you entered is invalid,this will be displayed as undefined in your output!");
@@ -154,7 +154,7 @@ function morsetotext()
 	}
 	//deals with thje very last character which does not ahve a space after it and as such will not have been added to the plain text
 	plaintext=plaintext+morsemap.get(singlemorse);
-	document.getElementById("Output_Area").innerHTML = "the plaintext is :" + plaintext;
+	document.getElementById("OutputArea").innerHTML = "the plaintext is :" + plaintext;
 	if(undefinedfound == 1)
 	{
 		alert("one of the morse codes you enter is invalid,this will be displayed as undefined in your output!");

@@ -17,6 +17,7 @@ function changecipher(){
 		{
 			Subsititionselected();
 		}else
+		if(selectedCypher == 3||document.title == "Morse Code")
 		{
 			Morseselected();
 		}

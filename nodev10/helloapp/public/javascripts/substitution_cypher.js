@@ -91,7 +91,7 @@ function Subsitition_encrypt(alphamap){
 		}
 	}
 	//outputs and alerts the user
-	document.getElementById("Output_Area").innerHTML = "the encrypted text is " + encryptedtext ;
+	document.getElementById("OutputArea").innerHTML = "the encrypted text is " + encryptedtext ;
 	if(undefinedfound == 1)
 	{
 		alert("one of the characters you enter is invalid,this will be displayed as undefined in your output!");
@@ -122,7 +122,7 @@ function Subsitition_decrypt(alphamap){
 		}
 		
 	}
-	document.getElementById("Output_Area").innerHTML = "the decrypted text is " + plaintext; 
+	document.getElementById("OutputArea").innerHTML = "the decrypted text is " + plaintext; 
 	if(undefinedfound == 1)
 	{
 		alert("one of the characters you enter is invalid,this will be displayed as undefined in your output!");
