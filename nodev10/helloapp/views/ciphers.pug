@@ -1,5 +1,17 @@
 extends layout
-
 block content
-  h1= title
-  p Welcome to #{title}
+	block#CipherInfo
+		p 
+			CipherInfo= CipherInfo
+	block#CipherHelp
+		p
+			CipherHelp= CipherHelp
+	block#MethodSelector
+		p
+			MethodSelector= MethodSelector
+	block#InputArea
+		p
+			InputArea= InputArea
+	block#OutputArea
+		p
+		OutputArea= OutputArea
