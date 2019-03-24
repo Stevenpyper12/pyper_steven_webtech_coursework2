@@ -1,3 +1,24 @@
+var path = require('path');
+var dbPath = path.resolve(__dirname,'../testing.db')
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database(dbPath);
+
+db.serialize(function(){
+	db.run("create table if not exists user(userID integer primary key,username text not null,password text not null)");
+	db.run("insert into user(username,password) values('test_User','password123')");
+	db.all(("select * from user"),[],(err,rows)=>{
+		if(err){
+			throw err;
+		}
+		rows.forEach((row)=>{
+			console.log(row.userID);
+		});
+	});
+	
+});
+
+
+
 var express = require('express');
 var router = express.Router();
 
@@ -5,9 +26,17 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'About the Ciphers'});
 });
+
+router.get('/test', function(req, res, next) {
+  res.render('index', { title: 'this is a test'});
+});
+
+
+
 router.get('/ciphers', function(req, res, next) {
   res.render('index', { title: 'About the Ciphers' });
 });
+
 
 router.get('/ciphers/caesar', function(req, res, next) {
 	let CipherInfo = 'A Caesar Cipher might also be refered to as "A Shift Cipher,Caesars Code or a Caesar Shift". It works taking each letter and replacing it with another letter that is a fixed number of places around the alphabet. you were to shift it by 3 characters A would become D, as it is 3 characters to the right of a in the  English alphabet.'
@@ -25,18 +54,39 @@ router.get('/ciphers/caesar', function(req, res, next) {
 	});
 });
 
-
-
 router.get('/ciphers/substitution', function(req, res, next) {
   res.render('ciphers', { title: 'Subsituation Cipher' });
 });
-
-
 
 router.get('/ciphers/morse', function(req, res, next) {
   res.render('ciphers', { title: 'Morse Code' });
 });
 
+
+router.get('/messages', function(req, res, next) {
+  res.render('index', { title: 'message presend' });
+});
+
+router.get('/messages/test', function(req, res) {
+	db.all("select * FROM useraccounts",function(err,row)
+	{
+		res.json({"count":row.value})
+	});
+});
+/*
+router.post('/messages', function(req, res, next) {
+	db.run("update counts set value = value+1 where key = ?", "counter",function(err,row){
+		if(err){
+			console.err(err);
+			res.status(500);
+		}else
+		{
+			res.status(202);
+		}
+		res.end();
+	});
+});
+*/
 
 
 module.exports = router;

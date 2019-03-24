@@ -55,4 +55,8 @@ block content
 	p there are two main weakness of Morse Code which partially overlap. the first is that not ever language is english, and not ever language has 26 characters, this means that different versions of morse code must be created for these languages which in some cases mean they are no long similar enough to english for it to be univeral. 
 		This leads onto another weakness of morse Code which is that if you want to communicate in morse you must learn morse mostly off by heart, it is possible to write it all down and then convert it, however this is a slow method of communication and you would then need to know exactly which version of morse they are using if it is not standard english
 
-	
+	form(method="post" action='/messages')
+		div.form-group
+			label(for='name') Name:
+			input#name.form-control(type='text',placeholder ='first and last' name='name')
+		button.btn.btn-primary(type='submit') signup
