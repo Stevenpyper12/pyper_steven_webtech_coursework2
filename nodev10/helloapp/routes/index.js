@@ -5,19 +5,7 @@ var db = new sqlite3.Database(dbPath);
 
 db.serialize(function(){
 	db.run("create table if not exists user(userID integer primary key,username text not null,password text not null)");
-	db.run("insert into user(username,password) values('test_User','password123')");
-	db.all(("select * from user"),[],(err,rows)=>{
-		if(err){
-			throw err;
-		}
-		rows.forEach((row)=>{
-			console.log(row.userID);
-		});
-	});
-	
 });
-
-
 
 var express = require('express');
 var router = express.Router();
@@ -68,11 +56,39 @@ router.get('/messages', function(req, res, next) {
 });
 
 router.get('/messages/test', function(req, res) {
-	db.all("select * FROM useraccounts",function(err,row)
+	db.all("select * FROM user",function(err,row)
 	{
 		res.json({"count":row.value})
 	});
 });
+
+router.get('/login',function (req, res) {
+	res.render('login', { title: 'message presend' });
+});
+
+router.post('/register',function (req, res) {
+	var usernames=req.body.username;
+	var userpassword=req.body.userpassword;
+	
+	db.serialize(function(){
+		//'${usernames}'
+		db.get(`select distinct * from user where username = '${usernames}'`, function(err,result,row)
+			{
+				if(err)
+				{
+					throw err;
+					console.log(result);
+				}
+				else if(result){
+					console.log("user tried to enter name twice")
+				}
+				else
+				{
+					db.run(`insert into user(username,password) values ('${usernames}','${userpassword}')`);
+				}
+			})
+	})
+})
 /*
 router.post('/messages', function(req, res, next) {
 	db.run("update counts set value = value+1 where key = ?", "counter",function(err,row){
