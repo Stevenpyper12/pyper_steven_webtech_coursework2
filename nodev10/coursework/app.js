@@ -9,7 +9,7 @@ var dbPath = path.resolve(__dirname,'testing.db')
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database(dbPath);
 db.serialize(function(){
-	db.run("create table if not exists user(username text unique not null,password text not null, cookie text)");
+	db.run("create table if not exists user(username text unique not null,password text not null, cookie text, messages text)");
 	db.run("update user set cookie=null");
 });
 

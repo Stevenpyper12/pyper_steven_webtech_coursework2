@@ -10,43 +10,80 @@ var cookie= require('cookie');
 var ServerStartDate = new Date;
 var DateKey = cookieSignature.sign('server',String(ServerStartDate));
 
-
 /* GET home page. */
 
 router.get('/:anything',function(req,res,next){
 	var cookieparsing = req.cookies.UserInfo;
+	console.log(cookieparsing);
 	if(cookieparsing)
 	{
 		var testing = req.cookies.UserInfo.split("-")
 		if (testing[1] != DateKey)
 		{
-			res.setHeader('Set-Cookie',cookie.serialize('UserInfo',{
-				maxAge:Date.now()
-			}));
+			res.clearCookie('UserInfo',{path:'/'});
 			res.render('loggedout',{title:'you have been logged out!'});
-		//delete cookie as the cookie is no longer in sync with the server
 		}else
 		{
 			next();
 		}
-	}
-	else{
+	}else
+	{
 		next();
 	}
+	
+});
+
+router.get('/user/:test',function(req,res,next){
+	var cookieparsing = req.cookies.UserInfo;
+	console.log(cookieparsing);
+	if(cookieparsing)
+	{
+		var testing = req.cookies.UserInfo.split("-")
+		if (testing[1] != DateKey)
+		{
+			res.clearCookie('UserInfo',{path:'/'});
+			res.render('loggedout',{title:'you have been logged out!'});
+		}else
+		{
+			next();
+		}
+	}else
+	{
+		res.render('loginorregister',{title:'log in or register'});
+	}
+	
 });
 
 
+router.get('/user/messages/:test',function(req,res,next){
+	var cookieparsing = req.cookies.UserInfo;
+	console.log(cookieparsing);
+	if(cookieparsing)
+	{
+		var testing = req.cookies.UserInfo.split("-")
+		if (testing[1] != DateKey)
+		{
+			res.clearCookie('UserInfo',{path:'/'});
+			res.render('loggedout',{title:'you have been logged out!'});
+		}else
+		{
+			next();
+		}
+	}else
+	{
+		res.render('loginorregister',{title:'log in or register'});
+	}
+	
+});
+
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
-  console.log('Cookies: ', req.cookie);
-  console.log('Signed Cookies: ', req.signedCookies);
 });
 
 
 router.get('/register', function(req,res)
 {
-	 res.render('signOptions', { title: 'Register' ,extra:""});
-	//res.sendFile(path.resolve( __dirname+'/../public/html/register.html'));
+	res.render('signOptions', { title: 'Register' ,extra:""});
 });
 
 router.get('/login', function(req,res)
@@ -59,7 +96,7 @@ router.post('/register', function(req,res)
 {
 	var usernames=req.body.userName;
 	var userpassword=req.body.userPassword;
-	var usercookie=usernames+'-'+DateKey;
+	var usercookie=cookieSignature.sign('username',usernames)+'-'+DateKey;
 	db.serialize(function(){
 		//'${usernames}'
 		db.get(`select distinct * from user where username = '${usernames}'`, function(err,result,row)
@@ -81,7 +118,6 @@ router.post('/register', function(req,res)
 					res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
 						maxAge:60*60*24
 					}));
-
 					res.render('successful', { title: 'register Sucessful'});
 					//should then display a sucessful page rather than messages
 				}
@@ -94,7 +130,8 @@ router.post('/login', function(req,res)
 {
 	var usernames=req.body.userName;
 	var userpassword=req.body.userPassword;
-	var usercookie=usernames+'-'+DateKey;
+	var usercookie=cookieSignature.sign('username',usernames)+'-'+DateKey;
+	
 	db.serialize(function(){
 		db.get(`select distinct * from user where username = '${usernames}'`, function(err,result,row)
 			{
@@ -112,16 +149,14 @@ router.post('/login', function(req,res)
 					res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
 							maxAge:60*60*24
 						}));
-					 res.render('successful', { title: 'login Sucessful'});	
+					res.render('successful', { title: 'login Sucessful'});	
 					}else
 					{
 						 res.render('signOptions', { title: 'Login Failed',extra:"wrong username and/or password"});
-
 					}
 				}else
 				{
 						 res.render('signOptions', { title: 'Login Failed',extra:"wrong username and/or password"});
-
 				}
 			})
 			
@@ -131,10 +166,111 @@ router.post('/login', function(req,res)
 });
 
 
-router.get('/message', function(req,res)
+router.get('/user/messages', function(req,res)
 {
+	var userscookie = req.cookies.UserInfo;
+	var allmessages = [];
+	db.get(`select distinct * from user where cookie = '${userscookie}'`, function(err,result,row)
+	{
+		if(err)
+		{
+			throw err;
+			console.log(result);
+		}
+		if(result)
+		{			
+			if(result.messages != "")
+			{
+				console.log(result.messages)
+				var testing = result.messages.split(",")
+				testing.forEach(function(value){
+					console.log(value);
+					allmessages.push(value)
+				});
+			}
+		}
+	});
+	console.log(allmessages);
+	res.render('message', { title: 'Your Messages', userMessages:allmessages});
 	//render a message page , first validate user allowing them to only see there own messages(check both the userid and the server date key)
 	 //res.render('signOptions', { title: 'Login', extra:""});
 });
 
+router.get('/user/messages/send', function(req,res)
+{
+						
+	res.render('sendmessage', { title: 'Send A Messages'});
+	//render a message page , first validate user allowing them to only see there own messages(check both the userid and the server date key)
+	 //res.render('signOptions', { title: 'Login', extra:""});
+});
+
+router.post('/user/messages/send', function(req,res)
+{
+	var userscookie = req.cookies.UserInfo;
+	var userrecipent = req.body.recipient;
+	var usercontent = [];
+	usercontent = req.body.messagecontent;
+	var previousmessages;
+	var allmessages = []
+/*
+	var usernamesigned = userscookie[0];
+	var usernames = cookieSignature.unsign(userscookie[0],"username");
+	console.log(usernames);
+
+	*/
+	
+	console.log(userscookie);
+	db.serialize(function(){
+		db.get(`select distinct * from user where cookie = '${userscookie}'`, function(err,result,row)
+			{
+				if(err)
+				{
+					throw err;
+					console.log(result);
+				}
+				if(result)
+				{	
+					db.get(`select distinct * from user where username = '${userrecipent}'`, function(err,result,row)
+						{
+							if(result.messages != "")
+							{
+								
+								allmessages = [result.messages,usercontent]
+								console.log(result.messages);
+								console.log(usercontent);
+								db.run(`update user set messages ='${allmessages}' where username = '${userrecipent}'`);
+							
+							}else
+							{
+								db.run(`update user set messages ='${usercontent}' where username = '${userrecipent}'`);
+							}
+						});
+					
+				}else
+				{
+					res.clearCookie('UserInfo',{path:'/'});
+				}
+			})
+			
+	})
+	
+});
+
+
+
+
+
+/*router.post('/messages/send', function(req,res)
+{
+	var usernames=req.body.userName;
+	var userpassword=req.body.userPassword;
+	
+	
+	db.serialize(function(){
+		db.get(`select distinct * from user where username = '${usernames}'`, function(err,result,row)
+			
+	//render a message page , first validate user allowing them to only see there own messages(check both the userid and the server date key)
+	 //res.render('signOptions', { title: 'Login', extra:""});
+});
+*/
 module.exports = router;
