@@ -14,7 +14,6 @@ var DateKey = cookieSignature.sign('server',String(ServerStartDate));
 
 router.get('/:anything',function(req,res,next){
 	var cookieparsing = req.cookies.UserInfo;
-	console.log(cookieparsing);
 	if(cookieparsing)
 	{
 		var testing = req.cookies.UserInfo.split("-")
@@ -35,7 +34,6 @@ router.get('/:anything',function(req,res,next){
 
 router.get('/user/:test',function(req,res,next){
 	var cookieparsing = req.cookies.UserInfo;
-	console.log(cookieparsing);
 	if(cookieparsing)
 	{
 		var testing = req.cookies.UserInfo.split("-")
@@ -57,7 +55,6 @@ router.get('/user/:test',function(req,res,next){
 
 router.get('/user/messages/:test',function(req,res,next){
 	var cookieparsing = req.cookies.UserInfo;
-	console.log(cookieparsing);
 	if(cookieparsing)
 	{
 		var testing = req.cookies.UserInfo.split("-")
@@ -88,7 +85,7 @@ router.get('/register', function(req,res)
 
 router.get('/login', function(req,res)
 {
-	
+	//make this check if the user is already logged in and then if they are put them straight to the user stuff, if they arent then let them login
 	 res.render('signOptions', { title: 'Login', extra:""});
 });
 
@@ -170,28 +167,42 @@ router.get('/user/messages', function(req,res)
 {
 	var userscookie = req.cookies.UserInfo;
 	var allmessages = [];
-	db.get(`select distinct * from user where cookie = '${userscookie}'`, function(err,result,row)
-	{
-		if(err)
+	db.serialize(function(){
+		db.get(`select distinct * from user where cookie = '${userscookie}'`, function(err,result,row)
 		{
-			throw err;
-			console.log(result);
-		}
-		if(result)
-		{			
-			if(result.messages != "")
+			if(err)
 			{
-				console.log(result.messages)
-				var testing = result.messages.split(",")
-				testing.forEach(function(value){
-					console.log(value);
-					allmessages.push(value)
-				});
+				throw err;
+				console.log(result);
 			}
-		}
-	});
-	console.log(allmessages);
-	res.render('message', { title: 'Your Messages', userMessages:allmessages});
+			if(result)
+			{			
+				if(result.messages != "")
+				{
+					console.log(result.messages);
+					var testing = result.messages.split(",Sender:")
+					var first = 1;
+					testing.forEach(function(value){
+						if(first == 1)
+						{
+							allmessages.push(value)
+							first = 0;
+						}else
+						{
+							allmessages.push("Sender:" + value)
+						}
+					
+					});
+				}
+			}
+			
+			
+			res.render('message', { title: 'Your Messages', userMessages:allmessages});
+
+		});
+	})
+
+	//res.render('message', { title: 'Your Messages', userMessages:"you have no message"});
 	//render a message page , first validate user allowing them to only see there own messages(check both the userid and the server date key)
 	 //res.render('signOptions', { title: 'Login', extra:""});
 });
@@ -211,7 +222,8 @@ router.post('/user/messages/send', function(req,res)
 	var usercontent = [];
 	usercontent = req.body.messagecontent;
 	var previousmessages;
-	var allmessages = []
+	var allmessages = [];
+	var sender = "";
 /*
 	var usernamesigned = userscookie[0];
 	var usernames = cookieSignature.unsign(userscookie[0],"username");
@@ -219,7 +231,6 @@ router.post('/user/messages/send', function(req,res)
 
 	*/
 	
-	console.log(userscookie);
 	db.serialize(function(){
 		db.get(`select distinct * from user where cookie = '${userscookie}'`, function(err,result,row)
 			{
@@ -230,19 +241,27 @@ router.post('/user/messages/send', function(req,res)
 				}
 				if(result)
 				{	
+					sender = result.username
 					db.get(`select distinct * from user where username = '${userrecipent}'`, function(err,result,row)
 						{
-							if(result.messages != "")
+							if(result)
 							{
-								
-								allmessages = [result.messages,usercontent]
-								console.log(result.messages);
-								console.log(usercontent);
-								db.run(`update user set messages ='${allmessages}' where username = '${userrecipent}'`);
-							
+								if(result.messages)
+								{	
+									var finalmessage = "Sender:" + sender+ ". Content:" + usercontent;
+									allmessages = [result.messages,finalmessage]
+									db.run(`update user set messages ='${allmessages}' where username = '${userrecipent}'`);
+									res.render('successful', { title: 'Message sucessfully sent!'});
+								}else
+								{
+									
+									var finalmessage = "Sender:" + sender+ ". Content:" + usercontent;
+									db.run(`update user set messages ='${finalmessage}' where username = '${userrecipent}'`);
+									res.render('successful', { title: 'Message sucessfully sent!'});
+								}
 							}else
 							{
-								db.run(`update user set messages ='${usercontent}' where username = '${userrecipent}'`);
+								res.render('successful', { title: 'Message Failed To Send!'});
 							}
 						});
 					

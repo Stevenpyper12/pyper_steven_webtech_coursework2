@@ -1,15 +1,11 @@
 extends layout
-
 append extranav
   a.Nav_BarSpacing(href="http://127.0.0.1:5000/messages/send") Send A Message
   
 block content
   h1= title
-  p Welcome to #{title}
-  p Welcome to `${userMessages}`
-  p Welcome to ${userMessages}
   ul
-    each val in `${userMessages}`
+    each val in userMessages
       li=val
 
   
