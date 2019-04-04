@@ -1,5 +1,11 @@
 extends layout
-
+append head
+  script(src='/javascripts/changecipher.js')
+  script(src='/javascripts/changemethod.js')
+append extranav
+        a.Nav_BarSpacing(href="http://127.0.0.1:5000/user/messages") Your Messages |
+        a.Nav_BarSpacing(href="http://127.0.0.1:5000/user/messages/send") Send A Message |
+		  
 block content
   h1= title
   p Welcome to #{title}
@@ -10,4 +16,15 @@ block content
     div.form-group
       label(for='messagecontent') Message:
       input#messagecontent.form-control(type='text', name='messagecontent')
+    div.form-group
+      label(for='cipher') Cipher Choice:
+      select(name= 'selectbox',id='selectbox',onchange='changecipher()')
+        option(value=0 selected disabled) Please Pick A Cipher
+        option(value=1) Caesar Cipher
+        option(value=2) Subsitution Cypher
+        option(value=3) Morse Code
+    div.form-group
+      label(for='MethodSelector') Method Selection:
+      select(name= 'MethodSelector',id='MethodSelector' onchange='changemethod();')
+    div.form-group#InputArea
     button.btn.btn-primary(type='submit') Send Message

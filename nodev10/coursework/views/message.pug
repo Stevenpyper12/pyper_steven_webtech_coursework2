@@ -1,7 +1,8 @@
 extends layout
 append extranav
-  a.Nav_BarSpacing(href="http://127.0.0.1:5000/messages/send") Send A Message
-  
+        a.Nav_BarSpacing(href="http://127.0.0.1:5000/user/messages") Your Messages |
+        a.Nav_BarSpacing(href="http://127.0.0.1:5000/user/messages/send") Send A Message |
+		  
 block content
   h1= title
   ul

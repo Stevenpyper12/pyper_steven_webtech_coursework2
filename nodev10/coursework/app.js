@@ -3,7 +3,6 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
 var path = require('path');
 var dbPath = path.resolve(__dirname,'testing.db')
 var sqlite3 = require('sqlite3').verbose();
