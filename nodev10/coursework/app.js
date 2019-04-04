@@ -8,10 +8,29 @@ var dbPath = path.resolve(__dirname,'testing.db')
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database(dbPath);
 db.serialize(function(){
-	db.run("create table if not exists user(username text unique not null,password text not null, cookie text, messages text)");
+	db.run("CREATE TABLE IF NOT EXISTS User('UserName'	TEXT NOT NULL UNIQUE,'Password'	TEXT NOT NULL,'cookie'	TEXT )");
+	db.run("CREATE TABLE IF NOT EXISTS Message('MessageID'	INTEGER PRIMARY KEY AUTOINCREMENT,'Sender'	TEXT NOT NULL,'Recipient'	TEXT NOT NULL,'MessageContent'	TEXT NOT NULL,'CipherUsed'	INTEGER NOT NULL,	'Key'	INTEGER NOT NULL)");
+	
 	db.run("update user set cookie=null");
 });
 
+/*
+CREATE TABLE "User" (
+	"UserName"	TEXT NOT NULL UNIQUE,
+	"Password"	TEXT NOT NULL,
+	"cookie"	TEXT
+)
+
+CREATE TABLE "Message" (
+	"MessageID"	INTEGER PRIMARY KEY AUTOINCREMENT,
+	"Sender"	TEXT NOT NULL,
+	"Recipient"	TEXT NOT NULL,
+	"MessageContent"	TEXT NOT NULL,
+	"CipherUsed"	INTEGER NOT NULL,
+	"Key"	INTEGER NOT NULL
+)
+
+*/
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 

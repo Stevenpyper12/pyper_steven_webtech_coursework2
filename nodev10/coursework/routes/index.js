@@ -10,6 +10,7 @@ var cookie= require('cookie');
 var ServerStartDate = new Date;
 var DateKey = cookieSignature.sign('server',String(ServerStartDate));
 
+//NEXT WEEK WORK ON REDOING THE POST STUFF SINCCE IT WILL NO LONGER WORK, REDO IT!
 /* GET home page. */
 //i wish to have it noted that most of this was done before you allowed us to use any node packages and as such i dont(at time of writing) use any external modules which leads to some things being implemented in an nonoptiomial way, however as i have already restarted multiple times i will just be continuing while trying to use almost no modules(except maybe for user security)
 router.get('/:anything',function(req,res,next){
