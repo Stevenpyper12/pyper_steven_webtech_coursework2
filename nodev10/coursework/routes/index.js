@@ -258,7 +258,6 @@ router.post('/user/messages/send', function(req,res)
 //SPLITING ROUTING AND CIPHERS
 	charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	numchars= charset.length;
-	undefinedfound=0;
 //probably should have a routing function that chooses between caesar and stuff.
 
 //Caesar Stuff
@@ -410,7 +409,6 @@ function setupalpha(newalpha,orginalalpha){
 }
 
 function Subsitition_ciphering(alphamap,content){
-	undefinedfound = 0
 	var inputtext = content.toUpperCase();
 	var outputtext = "";
 	//goes through each character checking for spaces, if there is one it just gets added, if there isnt it will search the tree for the key of that character and the value thats returned will be added to the encrypted text
@@ -423,7 +421,6 @@ function Subsitition_ciphering(alphamap,content){
 		{
 			if(alphamap.get(inputtext[ch]) == undefined)
 			{
-				undefinedfound =1;
 				outputtext=outputtext+alphamap.get(inputtext[ch]);
 			}else
 			{
@@ -432,10 +429,7 @@ function Subsitition_ciphering(alphamap,content){
 		}
 	}
 	//outputs and alerts the user
-	if(undefinedfound == 1)
-	{
-		alert("one of the characters you enter is invalid,this will be displayed as undefined in your output!");
-	}
+
 	return outputtext;
 }
 
@@ -460,16 +454,17 @@ function morse(type,content)
 	//allows the user to make the choices from teh buttons
 	if(type == '0')
 	{
-		texttomorse(content);
+		morsetext = texttomorse(content);
+		return morsetext;
 	}else
 	{
-		morsetotext(content);
+		plaintext = morsetotext(content);
+		return plaintext
 	}
 }
 
 function texttomorse(content)
 {
-	undefinedfound = 0
 	var plaintext = content.toUpperCase();
 	var morsetext = "";
 	//goes through every character in plaintext and will convert it into morse code and add spaces so that if it played as sound it is deblt with properly
@@ -484,7 +479,6 @@ function texttomorse(content)
 			//checks if a character is not in the alphabet mapped tree meaning it would be undefined and not have a associated value
 			if(morsealphamap.get(plaintext[ch]) == undefined)
 			{
-				undefinedfound = 1;
 				morsetext=morsetext+morsealphamap.get(plaintext[ch]);
 				morsetext=morsetext+ " ";
 			}else
@@ -495,35 +489,47 @@ function texttomorse(content)
 		}
 	}
 	 //prints ot the output and alerts the user if there was any issues
-	if(undefinedfound == 1)
-	{
-		alert("one of the characters you entered is invalid,this will be displayed as undefined in your output!");
-	}
 	return morsetext;
 
 }
 
+function morsetotext(content)
+{
+	var plaintext = "";
+	var morsetext = content.toUpperCase();
+	var singlemorse = "";
+	
+	//has to go through every character and sort them into letters and words and also if a space is actually a space or should be double space
+	for(ch in morsetext)
+	{
+		if(morsetext[ch] == " " && morsetext[+ch - +1] == " ")
+		{
+			//if it was a double space it will add a actual space 
+			plaintext=plaintext+" ";
+		}
+		else
+		if(morsetext[ch] == " ")
+		{
+			//if it was a single space it  means that it was seperating a letter rather than a word and as such has to go through find the full morse letter and convert it to the actual letter
+			if(morsemorsemap.get(singlemorse) == undefined)
+			{
+				plaintext=plaintext+morsemorsemap.get(singlemorse);
+				singlemorse="";
+			}else
+			{
+				plaintext=plaintext+morsemorsemap.get(singlemorse);
+				singlemorse="";
+			}
+		}else
+		{
+			singlemorse = singlemorse+morsetext[ch];
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	}
+	//deals with thje very last character which does not ahve a space after it and as such will not have been added to the plain text
+	plaintext=plaintext+morsemorsemap.get(singlemorse);
+	return plaintext;
+}
 
 
 
