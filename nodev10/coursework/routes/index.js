@@ -93,7 +93,7 @@ router.post('/register', function(req,res)
 	var usercookie=cookieSignature.sign('username',usernames)+'-'+DateKey;
 	db.serialize(function(){
 		//'${usernames}'
-		db.get(`select distinct * from user where username = '${usernames}'`, function(err,result,row)
+		db.get(`select distinct * from User where UserName = '${usernames}'`, function(err,result,row)
 			{
 				if(err)
 				{
@@ -103,17 +103,18 @@ router.post('/register', function(req,res)
 				else if(result){
 					console.log("user tried to enter name twice")
 					//res.send("<meta http-equiv=\"refresh\" content= \"2;http://127.0.0.1:5000/register\">error creating account, username taken");
-					 res.render('signOptions', { title: 'Signup Failed',extra:"username already in use"});
+					res.render('signOptions', { title: 'Signup Failed',extra:"username already in use"});
 				}
 				else
 				{
-					db.run(`insert into user(username,password,cookie) values ('${usernames}','${userpassword}','${usercookie}')`);
+					db.run(`insert into user(UserName,Password,cookie) values ('${usernames}','${userpassword}','${usercookie}')`);
 					res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
 						maxAge:60*60*24
 					}));
 					res.render('successful', { title: 'register Sucessful'});
 				}
-			})	
+			})
+		
 	})
 });
 
@@ -123,7 +124,7 @@ router.post('/login', function(req,res)
 	var userpassword=req.body.userPassword;
 	var usercookie=cookieSignature.sign('username',usernames)+'-'+DateKey;
 	db.serialize(function(){
-		db.get(`select distinct * from user where username = '${usernames}'`, function(err,result,row)
+		db.get(`select distinct * from User where UserName = '${usernames}'`, function(err,result,row)
 			{
 				if(err)
 				{
@@ -134,7 +135,7 @@ router.post('/login', function(req,res)
 				{
 					if(result.password == userpassword)
 					{
-					db.run(`update user set cookie ='${usercookie}' where username = '${usernames}'`);
+					db.run(`update User set cookie ='${usercookie}' where UserName = '${usernames}'`);
 					//set cookie here
 					res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
 							maxAge:60*60*24
@@ -158,7 +159,7 @@ router.get('/user/messages', function(req,res)
 	var userscookie = req.cookies.UserInfo;
 	var allmessages = [];
 	db.serialize(function(){
-		db.get(`select distinct * from user where cookie = '${userscookie}'`, function(err,result,row)
+		db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
 		{
 			if(err)
 			{
