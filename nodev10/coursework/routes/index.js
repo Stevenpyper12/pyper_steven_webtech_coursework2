@@ -133,7 +133,9 @@ router.post('/login', function(req,res)
 				}
 				if(result)
 				{
-					if(result.password == userpassword)
+					console.log(result.Password)
+					console.log(userpassword)
+					if(result.Password == userpassword)
 					{
 					db.run(`update User set cookie ='${usercookie}' where UserName = '${usernames}'`);
 					//set cookie here
@@ -199,11 +201,11 @@ router.post('/user/messages/send', function(req,res)
 {
 	var userscookie = req.cookies.UserInfo;
 	var userrecipent = req.body.recipient;
-	var usercontent = [];
-	usercontent = req.body.messagecontent;
-	var previousmessages;
-	var allmessages = [];
-	var sender = "";
+	var usercontent = req.body.messagecontent;
+	var usercipher = req.body.cipher;
+	var usermethod = req.body.MethodSelector;
+	var userkey = req.body.InputKey;
+	var cipherused = usercipher+","+usermethod;
 	console.log(req.body)
 /*
 	var usernamesigned = userscookie[0];
@@ -213,7 +215,7 @@ router.post('/user/messages/send', function(req,res)
 	*/
 	
 	db.serialize(function(){
-		db.get(`select distinct * from user where cookie = '${userscookie}'`, function(err,result,row)
+		db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
 			{
 				if(err)
 				{
@@ -223,21 +225,13 @@ router.post('/user/messages/send', function(req,res)
 				if(result)
 				{	
 					sender = result.username
-					db.get(`select distinct * from user where username = '${userrecipent}'`, function(err,result,row)
+					db.get(`select distinct * from user where Username = '${userrecipent}'`, function(err,result,row)
 						{
 							if(result)
 							{
 								if(result.messages)
-								{	
-									var finalmessage = "Sender:" + sender+ ". Content:" + usercontent;
-									allmessages = [result.messages,finalmessage]
-									db.run(`update user set messages ='${allmessages}' where username = '${userrecipent}'`);
-									res.render('successful', { title: 'Message sucessfully sent!'});
-								}else
 								{
-									
-									var finalmessage = "Sender:" + sender+ ". Content:" + usercontent;
-									db.run(`update user set messages ='${finalmessage}' where username = '${userrecipent}'`);
+								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,Key) VALUES (${sender},${userrecipent},${usercontent},${cipherused},${userkey}`);
 									res.render('successful', { title: 'Message sucessfully sent!'});
 								}
 							}else
