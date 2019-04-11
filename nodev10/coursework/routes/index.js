@@ -229,12 +229,32 @@ router.get('/user/messages/send', function(req,res)
 
 router.post('/user/messages/send', function(req,res)
 {
+	//Caesar cipher is cipher 1, 2 is subsitution, 3 is morse
+	//Caesar Method selection is 1 for manual key and 4 for set key of 13
+	//subsitution only has one method which is 1, this requires work as neither alphabet comes through as a key
+	//morse only one method which is 1,also needs work as it currently doesnt work for sending messages or playing sounds
+	//
+	//
+	console.log(req.body);
 	var userscookie = req.cookies.UserInfo;
 	var userrecipent = req.body.recipient;
 	var usercontent = req.body.messagecontent;
-	var usercipher = req.body.cipher;
+	var usercipher = req.body.selectbox;	
+	if(usercipher == 1)
+	{
+		console.log("call caesar");
+	}else
+	if(usercipher==2)
+	{
+		console.log("call subsitution")
+	}else
+	{
+		console.log("must be morse");
+	}
+	
 	var usermethod = req.body.MethodSelector;
 	var userkey = req.body.InputKey;
+	var finalcontent = "";
 
 /*
 	var usernamesigned = userscookie[0];
@@ -254,13 +274,14 @@ router.post('/user/messages/send', function(req,res)
 				console.log('2');
 				if(result)
 				{	
-					sender = result.username
+					sender = result.UserName
+					console.log(sender);
 					db.get(`select distinct * from User where Username = '${userrecipent}'`, function(err,result,row)
 						{
 							console.log('3');
 							if(result)
 							{
-								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,MethodSelector,Key) VALUES (${sender},${userrecipent},${usercontent},${usercipher},${usermethod},${userkey})`);
+								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,MethodSelector,Key) VALUES ("${sender}","${userrecipent}","${usercontent}","${usercipher}","${usermethod}","${userkey}")`);
 								res.render('successful', { title: 'Message sucessfully sent!'});
 							console.log('4');
 							}else
