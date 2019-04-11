@@ -50,8 +50,8 @@ function changemethod()
 		{
 			if(selectedmethod == 1)
 			{
-				document.getElementById("InputArea").innerHTML = "<p>Enter the proper version of the alphabet(no duplicates)<br><input type='text' id='orginalalpha' value=''></p>";
-				document.getElementById("InputArea").innerHTML += "<p>Enter Your version of the Alphabet(key)(no duplicates)<br><input type='text' id='newalpha' value=''></p>";
+				document.getElementById("InputArea").innerHTML = "<p>Enter the proper version of the alphabet(no duplicates)<br><input name='key1' type='text' id='orginalalpha' value=''></p>";
+				document.getElementById("InputArea").innerHTML += "<p>Enter Your version of the Alphabet(key)(no duplicates)<br><input name='key2' type='text' id='newalpha' value=''></p>";
 			}else
 			{
 				document.getElementById("InputArea").innerHTML = "<p>Enter the original version of the alphabet(no duplicates)<br><input type='text' id='orginalalpha' value=''></p>";
@@ -67,7 +67,7 @@ function changemethod()
 			}else
 			{
 				//also nolonger required 
-				document.getElementById("InputArea").innerHTML = "<p>enter the morse you want converted into text<br>between each letter leave one space, between words leave 3 spaces! for example .- .-&nbsp;&nbsp;&nbsp.- will translate to AA A<br><input type='text' id='inputmorse' value=''></p>";
+				document.getElementById("InputArea").innerHTML = "<p>enter the morse you want converted into text<br>between each letter leave one space, between words leave 3 spaces! for example .- .-&nbsp;&nbsp;&nbsp.- will translate to AA A<br><input name='morsetext' type='text' id='inputmorse' value=''></p>";
 				document.getElementById("InputArea").innerHTML += "<button onclick='morse(\"1\")'>convert morse to text</button>";	
 				document.getElementById("InputArea").innerHTML += "<button onclick='morse(\"2\")'>play morse as sound</button>";	
 				document.getElementById("InputArea").innerHTML += "<button onclick='morse(\"3\")'>Stop Sound</button>";

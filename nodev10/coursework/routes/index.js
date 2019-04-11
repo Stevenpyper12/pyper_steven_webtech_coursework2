@@ -249,19 +249,25 @@ router.post('/user/messages/send', function(req,res)
 		if(usermethod == 1)
 		{
 			userkey=req.body.InputKey;
-			finalcontent = Caesar(1,userkey,usercontent)
+			finalcontent = Caesar(0,userkey,usercontent)
 		}else
 		{
 			userkey=13;
-			finalcontent = Caesar(1,userkey,usercontent)
+			finalcontent = Caesar(0,userkey,usercontent)
 		}
 	}else
 	if(usercipher==2)
 	{
-		console.log("call subsitution")
+		usermethod=req.body.MethodSelector;
+		userkey = req.body.key1+","+req.body.key2
+		finalcontent = Subsitition(0,req.body.key1,req.body.key2,usercontent)
 	}else
 	{
+		usermethod=req.body.MethodSelector;
+		userkey = "NA";
+		finalcontent = morse(0,usercontent);
 		console.log("must be morse");
+		
 	}
 
 
@@ -412,13 +418,13 @@ function Subsitition(type,key1,key2,content){
 	var alphamap = new Map();
 	if(type == '0')
 	{
-		alphamap = setupalpha(key1,key2);
+		alphamap = setupalpha(key2,key1);
 		cipheredtext = Subsitition_ciphering(alphamap,content);
 		return cipheredtext;
 	}
 	else
 	if(type == '1'){
-		alphamap = setupalpha(key2,key1);
+		alphamap = setupalpha(key1,key2);
 		decipheredtext= Subsitition_ciphering(alphamap,content);
 		return decipheredtext;
 	}
