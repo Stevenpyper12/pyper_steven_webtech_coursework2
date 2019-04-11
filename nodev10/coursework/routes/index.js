@@ -240,9 +240,21 @@ router.post('/user/messages/send', function(req,res)
 	var userrecipent = req.body.recipient;
 	var usercontent = req.body.messagecontent;
 	var usercipher = req.body.selectbox;	
+	var usermethod;
+	var userkey;
+	var finalcontent;
 	if(usercipher == 1)
 	{
-		console.log("call caesar");
+		usermethod=req.body.MethodSelector
+		if(usermethod == 1)
+		{
+			userkey=req.body.InputKey;
+			finalcontent = Caesar(1,userkey,usercontent)
+		}else
+		{
+			userkey=13;
+			finalcontent = Caesar(1,userkey,usercontent)
+		}
 	}else
 	if(usercipher==2)
 	{
@@ -251,10 +263,7 @@ router.post('/user/messages/send', function(req,res)
 	{
 		console.log("must be morse");
 	}
-	
-	var usermethod = req.body.MethodSelector;
-	var userkey = req.body.InputKey;
-	var finalcontent = "";
+
 
 /*
 	var usernamesigned = userscookie[0];
@@ -281,7 +290,7 @@ router.post('/user/messages/send', function(req,res)
 							console.log('3');
 							if(result)
 							{
-								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,MethodSelector,Key) VALUES ("${sender}","${userrecipent}","${usercontent}","${usercipher}","${usermethod}","${userkey}")`);
+								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,MethodSelector,Key) VALUES ("${sender}","${userrecipent}","${finalcontent}","${usercipher}","${usermethod}","${userkey}")`);
 								res.render('successful', { title: 'Message sucessfully sent!'});
 							console.log('4');
 							}else
@@ -311,32 +320,18 @@ router.post('/user/messages/send', function(req,res)
 //Caesar Stuff
 function Caesar(type,key,content){
 	//defines how many shifts there should be to the chararcter set
-	if(key == 0)
+	if(type == '0')
 	{
-		if(type == '3')
-		{
-			//rot13 encrypt
-			ciphertext = Caesar_encrypt(13,content);
-			return ciphertext;
-		}else
-		if(type == '4'){
-			//rot13 decrypt
-			plaintext=Caesar_decrypt(13,content);
-			return plaintext;
-		}
-	}else
-	{
-		if(type == '0')
-		{
 			//caesar encrypt with a key(set to 0 so it can search for the proper key when it is running
-			ciphertext = Caesar_encrypt(key,content);
-			return ciphertext;
-		}else
-		if(type == '1'){
-			//caesar decrypt with a key(set to 0 so it can search for the proper key when it is running
-			plaintext=Caesar_decrypt(key,content);
-			return plaintext;
-		}
+		ciphertext = Caesar_encrypt(key,content);
+		return ciphertext;
+	}else
+	if(type == '1')
+	{
+		//caesar decrypt with a key(set to 0 so it can search for the proper key when it is running
+		plaintext=Caesar_decrypt(key,content);
+		return plaintext;
+		
 	}
 }
 
