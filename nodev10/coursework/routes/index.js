@@ -107,7 +107,7 @@ router.post('/register', function(req,res)
 				}
 				else
 				{
-					db.run(`insert into user(UserName,Password,cookie) values ('${usernames}','${userpassword}','${usercookie}')`);
+					db.run(`insert into User(UserName,Password,cookie) values ('${usernames}','${userpassword}','${usercookie}')`);
 					res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
 						maxAge:60*60*24
 					}));
@@ -133,8 +133,6 @@ router.post('/login', function(req,res)
 				}
 				if(result)
 				{
-					console.log(result.Password)
-					console.log(userpassword)
 					if(result.Password == userpassword)
 					{
 					db.run(`update User set cookie ='${usercookie}' where UserName = '${usernames}'`);
@@ -161,7 +159,7 @@ router.get('/user/messages', function(req,res)
 	var userscookie = req.cookies.UserInfo;
 	var allmessages = [];
 	db.serialize(function(){
-		db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
+		db.all(`select * from User JOIN Message on Recipient=username where cookie = '${userscookie}'`, function(err,result,row)
 		{
 			if(err)
 			{
@@ -169,7 +167,35 @@ router.get('/user/messages', function(req,res)
 				console.log(result);
 			}
 			if(result)
-			{			
+			{	
+				
+				/*var sender = result.Sender;
+				var recipient = result.Recipient;
+				var messagecontent = result.MessageContent;
+				var cipherused = result.CipherUsed;
+				var method = result.MethodSelector;
+				var key = result.Key;
+				*/
+				var testingstring = []
+				
+				result.forEach(function(value)
+				{
+					/*
+					sender.push(value.Sender);
+					recipient.push(value.Recipient);
+					messagecontent.push(value.MessageContent)
+					cipherused.push(value.CipherUsed);
+					method.push(value.MethodSelector);
+					key.push(value.Key);
+					*/
+					var otherstring  = "Sender:" +value.Sender + ".Recipient:" + value.Recipient + ".MessageContent:" + value.MessageContent
+					testingstring.push(otherstring);
+				});
+				
+				
+				//res.render('newmessages', { title: 'Your Messages', userMessages:allmessages});
+				res.render('newmessages', { title: 'Your Messages', messagesender:testingstring});
+				/*
 				if(result.messages != "")
 				{
 					console.log(result.messages);
@@ -186,8 +212,12 @@ router.get('/user/messages', function(req,res)
 						}
 					});
 				}
+				*/
+			}else
+			{
+				//replace this with a pug file displaying no messages
+				res.render('message', { title: 'Your Messages', userMessages:allmessages});
 			}
-			res.render('message', { title: 'Your Messages', userMessages:allmessages});
 		});
 	})
 });
@@ -205,15 +235,14 @@ router.post('/user/messages/send', function(req,res)
 	var usercipher = req.body.cipher;
 	var usermethod = req.body.MethodSelector;
 	var userkey = req.body.InputKey;
-	var cipherused = usercipher+","+usermethod;
-	console.log(req.body)
+
 /*
 	var usernamesigned = userscookie[0];
 	var usernames = cookieSignature.unsign(userscookie[0],"username");
 	console.log(usernames);
 
 	*/
-	
+	console.log('1');
 	db.serialize(function(){
 		db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
 			{
@@ -222,26 +251,28 @@ router.post('/user/messages/send', function(req,res)
 					throw err;
 					console.log(result);
 				}
+				console.log('2');
 				if(result)
 				{	
 					sender = result.username
-					db.get(`select distinct * from user where Username = '${userrecipent}'`, function(err,result,row)
+					db.get(`select distinct * from User where Username = '${userrecipent}'`, function(err,result,row)
 						{
+							console.log('3');
 							if(result)
 							{
-								if(result.messages)
-								{
-								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,Key) VALUES (${sender},${userrecipent},${usercontent},${cipherused},${userkey}`);
-									res.render('successful', { title: 'Message sucessfully sent!'});
-								}
+								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,MethodSelector,Key) VALUES (${sender},${userrecipent},${usercontent},${usercipher},${usermethod},${userkey})`);
+								res.render('successful', { title: 'Message sucessfully sent!'});
+							console.log('4');
 							}else
 							{
+								console.log('5');
 								res.render('successful', { title: 'Message Failed To Send!'});
 							}
 						});
 					
 				}else
 				{
+					console.log('6');
 					res.clearCookie('UserInfo',{path:'/'});
 				}
 			})
