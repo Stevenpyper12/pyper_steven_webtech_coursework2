@@ -7,6 +7,7 @@ var db = new sqlite3.Database(dbPath);
 var cookieParser = require('cookie-parser');
 var cookieSignature = require('cookie-signature');
 var cookie= require('cookie');
+var bcrypt = require('bcrypt');
 var ServerStartDate = new Date;
 var DateKey = cookieSignature.sign('server',String(ServerStartDate));
 
@@ -91,6 +92,8 @@ router.post('/register', function(req,res)
 	var usernames=req.body.userName;
 	var userpassword=req.body.userPassword;
 	var usercookie=cookieSignature.sign('username',usernames)+'-'+DateKey;
+	var finalPassword = bcrypt.hashSync(userpassword, 10);
+	console.log(finalPassword);
 	db.serialize(function(){
 		//'${usernames}'
 		db.get(`select distinct * from User where UserName = '${usernames}'`, function(err,result,row)
@@ -101,13 +104,12 @@ router.post('/register', function(req,res)
 					console.log(result);
 				}
 				else if(result){
-					console.log("user tried to enter name twice")
 					//res.send("<meta http-equiv=\"refresh\" content= \"2;http://127.0.0.1:5000/register\">error creating account, username taken");
 					res.render('signOptions', { title: 'Signup Failed',extra:"username already in use"});
 				}
 				else
 				{
-					db.run(`insert into User(UserName,Password,cookie) values ('${usernames}','${userpassword}','${usercookie}')`);
+					db.run(`insert into User(UserName,Password,cookie) values ('${usernames}','${finalPassword}','${usercookie}')`);
 					res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
 						maxAge:60*60*24
 					}));
@@ -133,14 +135,14 @@ router.post('/login', function(req,res)
 				}
 				if(result)
 				{
-					if(result.Password == userpassword)
+					if(bcrypt.compareSync(userpassword, result.Password))
 					{
-					db.run(`update User set cookie ='${usercookie}' where UserName = '${usernames}'`);
+						db.run(`update User set cookie ='${usercookie}' where UserName = '${usernames}'`);
 					//set cookie here
-					res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
+						res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
 							maxAge:60*60*24
 						}));
-					res.render('successful', { title: 'login Sucessful'});	
+						res.render('successful', { title: 'login Sucessful'});	
 					}else
 					{
 						 res.render('signOptions', { title: 'Login Failed',extra:"wrong username and/or password"});
@@ -158,6 +160,7 @@ router.get('/user/messages', function(req,res)
 {
 	var userscookie = req.cookies.UserInfo;
 	var allmessages = [];
+	var finalcontent;
 	db.serialize(function(){
 		db.all(`select * from User JOIN Message on Recipient=username where cookie = '${userscookie}'`, function(err,result,row)
 		{
@@ -176,6 +179,34 @@ router.get('/user/messages', function(req,res)
 				var method = result.MethodSelector;
 				var key = result.Key;
 				*/
+	/*if(usercipher == 1)
+	{
+		usermethod=req.body.MethodSelector
+		if(usermethod == 1)
+		{
+			userkey=req.body.InputKey;
+			finalcontent = Caesar(0,userkey,usercontent)
+		}else
+		{
+			userkey=13;
+			finalcontent = Caesar(0,userkey,usercontent)
+		}
+	}else
+	if(usercipher==2)
+	{
+		usermethod=req.body.MethodSelector;
+		userkey = req.body.key1+","+req.body.key2
+		finalcontent = Subsitition(0,req.body.key1,req.body.key2,usercontent)
+	}else
+	{
+		usermethod=req.body.MethodSelector;
+		userkey = "NA";
+		finalcontent = morse(0,usercontent);
+		console.log("must be morse");
+	}
+*/	
+
+
 				var testingstring = []
 				
 				result.forEach(function(value)
@@ -188,7 +219,37 @@ router.get('/user/messages', function(req,res)
 					method.push(value.MethodSelector);
 					key.push(value.Key);
 					*/
-					var otherstring  = "Sender:" +value.Sender + ".Recipient:" + value.Recipient + ".MessageContent:" + value.MessageContent
+					if(value.CipherUsed == 1)
+					{
+						usermethod=value.MethodSelector;
+						if(usermethod == 1)
+						{
+							userkey=value.Key
+							finalcontent = Caesar(1,userkey,value.MessageContent)
+						}else
+						{
+							userkey=13;
+							finalcontent = Caesar(1,userkey,value.MessageContent)
+						
+					
+						}
+					}else 
+					if(value.CipherUsed == 2)
+					{
+						//usermethod=value.MethodSelector;
+						var keys = value.Key.split(",");
+						var key1 = keys[0];
+						var key2 = keys[1];
+						//userkey = req.body.key1+","+req.body.key2
+						finalcontent = Subsitition(1,key1,key2,value.MessageContent)
+					}else
+					{
+							//usermethod=value.MethodSelector;
+							//userkey = "NA";
+						finalcontent = morse(1,value.MessageContent);
+					}
+					
+					var otherstring  = "Sender:" +value.Sender + ".Recipient:" + value.Recipient + ".MessageContent:" + finalcontent
 					testingstring.push(otherstring);
 				});
 				
@@ -235,7 +296,6 @@ router.post('/user/messages/send', function(req,res)
 	//morse only one method which is 1,also needs work as it currently doesnt work for sending messages or playing sounds
 	//
 	//
-	console.log(req.body);
 	var userscookie = req.cookies.UserInfo;
 	var userrecipent = req.body.recipient;
 	var usercontent = req.body.messagecontent;
@@ -264,10 +324,8 @@ router.post('/user/messages/send', function(req,res)
 	}else
 	{
 		usermethod=req.body.MethodSelector;
-		userkey = "NA";
+		//userkey = "NA";
 		finalcontent = morse(0,usercontent);
-		console.log("must be morse");
-		
 	}
 
 
@@ -277,7 +335,6 @@ router.post('/user/messages/send', function(req,res)
 	console.log(usernames);
 
 	*/
-	console.log('1');
 	db.serialize(function(){
 		db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
 			{
@@ -286,29 +343,29 @@ router.post('/user/messages/send', function(req,res)
 					throw err;
 					console.log(result);
 				}
-				console.log('2');
+			
 				if(result)
 				{	
 					sender = result.UserName
-					console.log(sender);
+				
 					db.get(`select distinct * from User where Username = '${userrecipent}'`, function(err,result,row)
 						{
-							console.log('3');
+							
 							if(result)
 							{
 								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,MethodSelector,Key) VALUES ("${sender}","${userrecipent}","${finalcontent}","${usercipher}","${usermethod}","${userkey}")`);
 								res.render('successful', { title: 'Message sucessfully sent!'});
-							console.log('4');
+							
 							}else
 							{
-								console.log('5');
+							
 								res.render('successful', { title: 'Message Failed To Send!'});
 							}
 						});
 					
 				}else
 				{
-					console.log('6');
+					
 					res.clearCookie('UserInfo',{path:'/'});
 				}
 			})
@@ -573,10 +630,10 @@ function morsetotext(content)
 		{
 			singlemorse = singlemorse+morsetext[ch];
 		}
-
 	}
 	//deals with thje very last character which does not ahve a space after it and as such will not have been added to the plain text
-	plaintext=plaintext+morsemorsemap.get(singlemorse);
+	//plaintext=plaintext+morsemorsemap.get(singlemorse);
+	console.log(plaintext);
 	return plaintext;
 }
 

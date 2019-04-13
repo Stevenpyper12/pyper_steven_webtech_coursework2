@@ -9,7 +9,7 @@ var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database(dbPath);
 db.serialize(function(){
 	db.run("CREATE TABLE IF NOT EXISTS User('UserName'	TEXT NOT NULL UNIQUE,'Password'	TEXT NOT NULL,'cookie'	TEXT )");
-	db.run("CREATE TABLE IF NOT EXISTS Message('MessageID'	INTEGER PRIMARY KEY AUTOINCREMENT,'Sender'	TEXT NOT NULL,'Recipient'	TEXT NOT NULL,'MessageContent'	TEXT NOT NULL,'CipherUsed'	INTEGER NOT NULL,	'Key'	INTEGER NOT NULL)");
+	db.run("CREATE TABLE IF NOT EXISTS Message('MessageID'	INTEGER PRIMARY KEY AUTOINCREMENT,'Sender'	TEXT NOT NULL,'Recipient'	TEXT NOT NULL,'MessageContent'	TEXT NOT NULL,'CipherUsed'	INTEGER NOT NULL,	'Key'	TEXT)");
 	
 	db.run("update User set cookie=null");
 });
