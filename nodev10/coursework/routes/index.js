@@ -22,7 +22,7 @@ router.get('/:anything',function(req,res,next){
 		if (testing[1] != DateKey)
 		{
 			res.clearCookie('UserInfo',{path:'/'});
-			res.render('loggedout',{title:'you have been logged out!'});
+			res.redirect('/login');
 		}else
 		{
 			next();
@@ -41,7 +41,7 @@ router.get('/user/:test',function(req,res,next){
 		if (testing[1] != DateKey)
 		{
 			res.clearCookie('UserInfo',{path:'/'});
-			res.render('loggedout',{title:'you have been logged out!'});
+			res.redirect('/login');
 		}else
 		{
 			next();
@@ -61,7 +61,65 @@ router.get('/user/messages/:test',function(req,res,next){
 		if (testing[1] != DateKey)
 		{
 			res.clearCookie('UserInfo',{path:'/'});
-			res.render('loggedout',{title:'you have been logged out!'});
+			res.redirect('/login');
+		}else
+		{
+			next();
+		}
+	}else
+	{
+		res.render('loginorregister',{title:'log in or register'});
+	}
+});
+
+router.post('/:anything',function(req,res,next){
+	var cookieparsing = req.cookies.UserInfo;
+	if(cookieparsing)
+	{
+		var testing = req.cookies.UserInfo.split("-")
+		if (testing[1] != DateKey)
+		{
+			res.clearCookie('UserInfo',{path:'/'});
+			res.redirect('/login');
+		}else
+		{
+			next();
+		}
+	}else
+	{
+		next();
+	}
+});
+
+router.post('/user/:test',function(req,res,next){
+	var cookieparsing = req.cookies.UserInfo;
+	if(cookieparsing)
+	{
+		var testing = req.cookies.UserInfo.split("-")
+		if (testing[1] != DateKey)
+		{
+			res.clearCookie('UserInfo',{path:'/'});
+			res.redirect('/login');
+		}else
+		{
+			next();
+		}
+	}else
+	{
+		res.render('loginorregister',{title:'log in or register'});
+	}
+});
+
+
+router.post('/user/messages/:test',function(req,res,next){
+	var cookieparsing = req.cookies.UserInfo;
+	if(cookieparsing)
+	{
+		var testing = req.cookies.UserInfo.split("-")
+		if (testing[1] != DateKey)
+		{
+			res.clearCookie('UserInfo',{path:'/'});
+			res.redirect('/login');
 		}else
 		{
 			next();
@@ -154,7 +212,10 @@ router.post('/login', function(req,res)
 			})	
 	})
 });
-
+router.get('/user', function(req,res)
+{	
+	res.redirect('/user/messages');
+})
 
 router.get('/user/messages', function(req,res)
 {
@@ -633,7 +694,6 @@ function morsetotext(content)
 	}
 	//deals with thje very last character which does not ahve a space after it and as such will not have been added to the plain text
 	//plaintext=plaintext+morsemorsemap.get(singlemorse);
-	console.log(plaintext);
 	return plaintext;
 }
 
