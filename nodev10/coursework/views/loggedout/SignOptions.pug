@@ -1,0 +1,13 @@
+extends layout
+
+block content
+	h1= title
+	form(method="POST" action='')
+		div.form-group
+			label(for='username') Username:
+			input#username.form-control(type='text', name='userName')
+		div.form-group
+			label(for='userpassword') password:
+			input#userpassword.form-control(type='password', name='userPassword')
+		button.btn.btn-primary(type='submit') #{title}
+	h2= extra

@@ -15,6 +15,7 @@ var DateKey = cookieSignature.sign('server',String(ServerStartDate));
 /* GET home page. */
 //i wish to have it noted that most of this was done before you allowed us to use any node packages and as such i dont(at time of writing) use any external modules which leads to some things being implemented in an nonoptiomial way, however as i have already restarted multiple times i will just be continuing while trying to use almost no modules(except maybe for user security)
 router.get('/:anything',function(req,res,next){
+	console.log('first anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -34,6 +35,7 @@ router.get('/:anything',function(req,res,next){
 });
 
 router.get('/user/:test',function(req,res,next){
+	console.log('second anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -48,12 +50,13 @@ router.get('/user/:test',function(req,res,next){
 		}
 	}else
 	{
-		res.render('loginorregister',{title:'log in or register'});
+		res.redirect('/login');
 	}
 });
 
 
 router.get('/user/messages/:test',function(req,res,next){
+		console.log('third anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -68,11 +71,12 @@ router.get('/user/messages/:test',function(req,res,next){
 		}
 	}else
 	{
-		res.render('loginorregister',{title:'log in or register'});
+		res.redirect('/login');
 	}
 });
 
 router.post('/:anything',function(req,res,next){
+		console.log('forth anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -92,6 +96,7 @@ router.post('/:anything',function(req,res,next){
 });
 
 router.post('/user/:test',function(req,res,next){
+		console.log('fifth anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -106,18 +111,20 @@ router.post('/user/:test',function(req,res,next){
 		}
 	}else
 	{
-		res.render('loginorregister',{title:'log in or register'});
+		res.redirect('/login');
 	}
 });
 
 
 router.post('/user/messages/:test',function(req,res,next){
+	console.log('sixth anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
 		var testing = req.cookies.UserInfo.split("-")
 		if (testing[1] != DateKey)
 		{
+			
 			res.clearCookie('UserInfo',{path:'/'});
 			res.redirect('/login');
 		}else
@@ -126,25 +133,51 @@ router.post('/user/messages/:test',function(req,res,next){
 		}
 	}else
 	{
-		res.render('loginorregister',{title:'log in or register'});
+		res.redirect('/login');
 	}
 });
 
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+//all of these will require checking for logged in or not.
+router.get('/', function(req, res, next) 
+{
+	var userscookie = req.cookies.UserInfo;
+	if(userscookie)
+	{
+		res.render('loggedin/index', { title: 'Express' });
+	}else{
+		res.render('loggedout/index', { title: 'Express' });
+	}
+	
 });
 
 
 router.get('/register', function(req,res)
-{
-	res.render('signOptions', { title: 'Register' ,extra:""});
+{	
+	var userscookie = req.cookies.UserInfo;
+	if(userscookie)
+	{
+		res.redirect('/user/messages');
+	}else{
+		res.render('loggedout/signOptions', { title: 'Register' ,extra:""});
+	}
 });
 
 router.get('/login', function(req,res)
 {
-	res.render('signOptions', { title: 'Login', extra:""});
+	var userscookie = req.cookies.UserInfo;
+	if(userscookie)
+	{
+		res.redirect('/user/messages');
+	}else{
+		res.render('loggedout/signOptions', { title: 'Login', extra:""});
+	}
 });
 
+router.get('/logout', function(req,res)
+{
+	res.clearCookie('UserInfo',{path:'/'});
+	res.render('loggedout/logout',{title:'Loggedout',extra:"sucessful logout"});
+});
 router.post('/register', function(req,res)
 {
 	var usernames=req.body.userName;
@@ -163,7 +196,7 @@ router.post('/register', function(req,res)
 				}
 				else if(result){
 					//res.send("<meta http-equiv=\"refresh\" content= \"2;http://127.0.0.1:5000/register\">error creating account, username taken");
-					res.render('signOptions', { title: 'Signup Failed',extra:"username already in use"});
+					res.render('loggedout/signOptions', { title: 'Signup Failed',extra:"username already in use"});
 				}
 				else
 				{
@@ -171,7 +204,7 @@ router.post('/register', function(req,res)
 					res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
 						maxAge:60*60*24
 					}));
-					res.render('successful', { title: 'register Sucessful'});
+					res.render('loggedin/successful', { title: 'register Sucessful'});
 				}
 			})
 		
@@ -200,14 +233,14 @@ router.post('/login', function(req,res)
 						res.setHeader('Set-Cookie',cookie.serialize('UserInfo',usercookie,{
 							maxAge:60*60*24
 						}));
-						res.render('successful', { title: 'login Sucessful'});	
+						res.render('loggedin/successful', { title: 'login Sucessful'});	
 					}else
 					{
-						 res.render('signOptions', { title: 'Login Failed',extra:"wrong username and/or password"});
+						 res.render('loggedout/signOptions', { title: 'Login Failed',extra:"wrong username and/or password"});
 					}
 				}else
 				{
-						 res.render('signOptions', { title: 'Login Failed',extra:"wrong username and/or password"});
+						 res.render('loggedout/signOptions', { title: 'Login Failed',extra:"wrong username and/or password"});
 				}
 			})	
 	})
@@ -316,7 +349,7 @@ router.get('/user/messages', function(req,res)
 				
 				
 				//res.render('newmessages', { title: 'Your Messages', userMessages:allmessages});
-				res.render('newmessages', { title: 'Your Messages', messagesender:testingstring});
+				res.render('loggedin/newmessages', { title: 'Your Messages', messagesender:testingstring});
 				/*
 				if(result.messages != "")
 				{
@@ -338,7 +371,7 @@ router.get('/user/messages', function(req,res)
 			}else
 			{
 				//replace this with a pug file displaying no messages
-				res.render('message', { title: 'Your Messages', userMessages:allmessages});
+				res.render('loggedin/message', { title: 'Your Messages', userMessages:allmessages});
 			}
 		});
 	})
@@ -346,7 +379,7 @@ router.get('/user/messages', function(req,res)
 
 router.get('/user/messages/send', function(req,res)
 {
-	res.render('sendmessage', { title: 'Send A Messages'});
+	res.render('loggedin/sendmessage', { title: 'Send A Messages'});
 });
 
 router.post('/user/messages/send', function(req,res)
@@ -411,22 +444,18 @@ router.post('/user/messages/send', function(req,res)
 				
 					db.get(`select distinct * from User where Username = '${userrecipent}'`, function(err,result,row)
 						{
-							
 							if(result)
 							{
 								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,MethodSelector,Key) VALUES ("${sender}","${userrecipent}","${finalcontent}","${usercipher}","${usermethod}","${userkey}")`);
-								res.render('successful', { title: 'Message sucessfully sent!'});
-							
+								res.render('loggedin/successful', { title: 'Message sucessfully sent!'});
 							}else
 							{
-							
-								res.render('successful', { title: 'Message Failed To Send!'});
+								res.render('loggedin/successful', { title: 'Message Failed To Send!'});
 							}
 						});
 					
 				}else
 				{
-					
 					res.clearCookie('UserInfo',{path:'/'});
 				}
 			})
@@ -434,6 +463,41 @@ router.post('/user/messages/send', function(req,res)
 	})
 	
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //SPLITING ROUTING AND CIPHERS
@@ -646,7 +710,7 @@ function texttomorse(content)
 			//checks if a character is not in the alphabet mapped tree meaning it would be undefined and not have a associated value
 			if(morsealphamap.get(plaintext[ch]) == undefined)
 			{
-				morsetext=morsetext+morsealphamap.get(plaintext[ch]);
+				morsetext=morsetext+plaintext[ch];
 				morsetext=morsetext+ " ";
 			}else
 			{
@@ -680,14 +744,19 @@ function morsetotext(content)
 			//if it was a single space it  means that it was seperating a letter rather than a word and as such has to go through find the full morse letter and convert it to the actual letter
 			if(morsemorsemap.get(singlemorse) == undefined)
 			{
-				plaintext=plaintext+morsemorsemap.get(singlemorse);
+				plaintext=plaintext+singlemorse;
 				singlemorse="";
 			}else
 			{
 				plaintext=plaintext+morsemorsemap.get(singlemorse);
 				singlemorse="";
 			}
-		}else
+		}else if(!morsetext[ch] == "." || !morsetext[ch] == "-")
+		{
+			plaintext=plaintext+morsetext[ch]
+			singlemorse="";
+		}
+		else
 		{
 			singlemorse = singlemorse+morsetext[ch];
 		}

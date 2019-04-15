@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Morse Code</title>
+	</head>
+	
+	<body>
+		<div class = "Page_Header">
+			Morse Code
+		</div>
+		
+		<div class="Nav_Bar">
+			<a href="http://127.0.0.1:5000/index">Home</a>
+			<a href="http://127.0.0.1:5000/Caesar">Ceaser Cipher & Rot13</a>
+			<a href="http://127.0.0.1:5000/Substitution">Subsituation Cipher</a>
+			<a href="http://127.0.0.1:5000/Morse">Morse Code</a>
+		</div>
+		
+		<div class="Grid_Layout">
+			<div class="Col1Row1" id="CipherInfo">
+				Morse Code Encodes text characters as standard squences of dots and dashes.There is a Standard for the amount of time each dot,dash and space should take. a dot is one unit, a dash is three units, the space between each dot and dash in the same letter is one unit, the space between letters is three units and the space between words is seven units.
+				Also it was designed so that the most comman characters in english have hte shortest code, for instance the letter E is just one dot.
+			</div>
+			<div class="Col2Row1" id="CipherHelp">
+				There are two methods to choose from, one is converting text to Morse(convert to morse in drop down box), this will allow you to enter the text you would like to convert, this then gives you two options, you can either simplely convert it which will output just text, or output it and play it outloud by clicking on the play converted morse as sound button.
+				The other Method is to convert to  text, this allows you to enter morse
+				<br>Please note that the spaces between words is longer than it is supposed to be by around one character, make sure to wait long enough for the next word to be played if using audio
+			</div>
+
+			<div class="Col1Row2" id ="MethodSelector">
+			</div>
+			<div class="Col2Row2" id ="InputArea">
+				When you select a Morse Method This is where you will be able to enter text and click the buttons to do the work
+			</div>
+
+		</div>
+		
+		<div class = "Output_Area" id="Output_Area">
+			Any outputs will appear here!
+		</div>
+		
+	</body>
+		<link rel="stylesheet" type="text/css" href="css/newcss.css">
+		<script type="text/javascript" src="javascript/changecipher.js" onload="changecipher()"></script>
+		<script type="text/javascript" src="javascript/changemethod.js"></script>
+		<script type="text/javascript" src="javascript/morsecconverter.js"></script>
+</html>

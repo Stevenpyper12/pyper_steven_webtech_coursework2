@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Subsituation Cipher</title>
+	</head>
+	
+	<body>
+		<div class = "Page_Header">
+			Subsituation Cipher
+		</div>
+		
+		<div class="Nav_Bar">
+			<a href="http://127.0.0.1:5000/index">Home</a>
+			<a href="http://127.0.0.1:5000/Caesar">Ceaser Cipher & Rot13</a>
+			<a href="http://127.0.0.1:5000/Substitution">Subsituation Cipher</a>
+			<a href="http://127.0.0.1:5000/Morse">Morse Code</a>
+		</div>
+		
+		<div class="Grid_Layout">
+			<div class="Col1Row1" id="CipherInfo">
+				A simple substituion is where you can write out the alphabet in a different order than normal and convert the text over into the new alphabet, this is sometimes called a substitution alphabet.
+				One method of this would be a Mixed alphabet, this is created by writing out a word, removing repeated letters and then write all the remaining letters in normal order.
+				<img src="images/substitution_cypher.jpg" id="firstimage">
+			</div>
+			<div class="Col2Row1" id="CipherHelp">
+				There are two options for the Subsituation Cipher.
+				If you would like to create a cipher text click on encrypt in the dropdown box, then enter the orgional alphabet in the first box(for example this might be the english alphabet), then enter your version of the alphabet, you might want to try the mixed alphabet method, in the final box enter whatever text you would like converted and then click the setup new alphabet and encrypt button
+				if you would like to decrypt some ciphered text click on the decrpt in the dropdown box.then enter the orgional alphabet(the orgional alphabet used, so if it was english enter the english alphabet again), then enter the modified version that was used to encrypt it in the next box, then enter the encrypted text and click on the setup old alphabet and decrypt button.
+			</div>
+
+			<div class="Col1Row2" id ="MethodSelector">
+			</div>
+			<div class="Col2Row2" id ="InputArea">
+				When you select a Cipher Method This is where you will be able to enter text and click the buttons to do the work
+	
+			</div>
+
+		</div>
+		
+		<div class = "Output_Area" id="Output_Area">
+			Any outputs will appear here!
+		</div>
+		
+	</body>
+		<link rel="stylesheet" type="text/css" href="css/newcss.css">
+		<script type="text/javascript" src="javascript/changecipher.js" onload="changecipher()"></script>
+		<script type="text/javascript" src="javascript/changemethod.js"></script>
+		<script type="text/javascript" src="javascript/substitution_cypher.js"></script>
+</html>

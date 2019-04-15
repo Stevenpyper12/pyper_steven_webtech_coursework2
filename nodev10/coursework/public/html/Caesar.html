@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Caesar Cipher Rot13</title>
+	</head>
+	
+	<body>
+		<div class = "Page_Header">
+			Caesar Cipher & Rot13
+		</div>
+		
+		<div class="Nav_Bar">
+			<a href="http://127.0.0.1:5000/index">Home</a>
+			<a href="http://127.0.0.1:5000/Caesar">Ceaser Cipher & Rot13</a>
+			<a href="http://127.0.0.1:5000/Substitution">Subsituation Cipher</a>
+			<a href="http://127.0.0.1:5000/Morse">Morse Code</a>
+		</div>
+		
+		<div class="Grid_Layout">
+			<div class="Col1Row1" id="CipherInfo">
+				A Caesar Cipher might also be refered to as "A Shift Cipher,Caesars Code or a Caesar Shift". 
+				It works taking each letter and replacing it with another letter that is a fixed number of places around the alphabet. 
+				If you were to shift it by 3 characters A would become D, as it is 3 characters to the right of a in the  English alphabet.
+				<img src="images/Caesar_cipher.png" id="firstimage">
+			</div>
+			<div class="Col2Row1" id="CipherHelp">
+				There are many Different Cipher Methods for the Caesar Cipher. If you want to take some text and encrypt it by shifting the alphabet by a certain amount then choose encrypt, then enter the text and key(this is the number of times it will be shifted, can also be positive or negative) you would like to use then click the Encrypt Button.
+				<br>If you have some text that is already converted you can decipher it by choosing decrypt, all you then need to do is enter the cipher text and the sasme key that was used to cipher it to begin with, then click the decrypt button.
+				<br>If you do not know the key that was used to convert the text but would like to try and decrypt it anyway use the Crack option, then input it into the text box and then click the crack button.
+				<br>If you would like to convert the text into ROT13 then click on that option and enter the text and click the encrypt button
+				<br>If you would like to decrypt the ROT13 Text select that option then enter the text and click the decrypt button
+			</div>
+
+			<div class="Col1Row2" id ="MethodSelector">
+				
+			</div>
+			<div class="Col2Row2" id ="InputArea">
+				When you select a Cipher Method This is where you will be able to enter text and click the buttons to do the work
+			</div>
+
+		</div>
+		
+		<div class = "Output_Area" id="Output_Area">
+			Any outputs will appear here!
+		</div>
+		
+	</body>
+		<link rel="stylesheet" type="text/css" href="css/newcss.css">
+		<script type="text/javascript" src="javascript/changecipher.js" onload="changecipher()"></script>
+		<script type="text/javascript" src="javascript/Caesar_cipher.js"></script>
+		<script type="text/javascript" src="javascript/changemethod.js"></script>
+</html>

@@ -62,8 +62,8 @@ function changemethod()
 		{
 			if(selectedmethod == 1)
 			{
-				document.getElementById("InputArea").innerHTML = "<button onclick='morse(\"2\")'>play converted morse as sound</button>";
-				document.getElementById("InputArea").innerHTML += "<button onclick='morse(\"3\")'>Stop Sound</button>"	
+				//document.getElementById("InputArea").innerHTML = "<button onclick='morse(\"2\")'>play converted morse as sound</button>";
+				//document.getElementById("InputArea").innerHTML += "<button onclick='morse(\"3\")'>Stop Sound</button>"	
 			}else
 			{
 				//also nolonger required 
