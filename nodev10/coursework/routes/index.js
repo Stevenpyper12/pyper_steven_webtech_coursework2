@@ -15,7 +15,6 @@ var DateKey = cookieSignature.sign('server',String(ServerStartDate));
 /* GET home page. */
 //i wish to have it noted that most of this was done before you allowed us to use any node packages and as such i dont(at time of writing) use any external modules which leads to some things being implemented in an nonoptiomial way, however as i have already restarted multiple times i will just be continuing while trying to use almost no modules(except maybe for user security)
 router.get('/:anything',function(req,res,next){
-	console.log('first anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -35,7 +34,6 @@ router.get('/:anything',function(req,res,next){
 });
 
 router.get('/user/:test',function(req,res,next){
-	console.log('second anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -56,7 +54,6 @@ router.get('/user/:test',function(req,res,next){
 
 
 router.get('/user/messages/:test',function(req,res,next){
-		console.log('third anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -76,7 +73,6 @@ router.get('/user/messages/:test',function(req,res,next){
 });
 
 router.post('/:anything',function(req,res,next){
-		console.log('forth anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -96,7 +92,6 @@ router.post('/:anything',function(req,res,next){
 });
 
 router.post('/user/:test',function(req,res,next){
-		console.log('fifth anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -117,7 +112,6 @@ router.post('/user/:test',function(req,res,next){
 
 
 router.post('/user/messages/:test',function(req,res,next){
-	console.log('sixth anything')
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
 	{
@@ -137,7 +131,7 @@ router.post('/user/messages/:test',function(req,res,next){
 	}
 });
 
-//all of these will require checking for logged in or not.
+//all of these will require checking for logged in or not. modifyt these because userscookie might be cleared but still exist.
 router.get('/', function(req, res, next) 
 {
 	var userscookie = req.cookies.UserInfo;
@@ -343,7 +337,7 @@ router.get('/user/messages', function(req,res)
 						finalcontent = morse(1,value.MessageContent);
 					}
 					
-					var otherstring  = "Sender:" +value.Sender + ".Recipient:" + value.Recipient + ".MessageContent:" + finalcontent
+					var otherstring  ="MessageID:" +value.MessageID+ ".Sender:" +value.Sender + ".Recipient:" + value.Recipient + ".MessageContent:" + finalcontent
 					testingstring.push(otherstring);
 				});
 				
@@ -376,6 +370,49 @@ router.get('/user/messages', function(req,res)
 		});
 	})
 });
+
+router.post('/user/messages', function(req,res)
+{
+	console.log("do we even get ehre boi?")
+	var userscookie = req.cookies.UserInfo;
+	var messageid = req.body.MessageID;
+	db.serialize(function(){
+		
+		db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
+		{
+			console.log("first part")
+			if(err)
+			{
+				throw err;
+				console.log(result);
+			}
+			if(result)
+			{
+				console.log("second part")
+				var username = result.UserName;
+				console.log(username)
+				console.log(messageid)
+				db.get(`select * from Message where MessageID = '${messageid}'`, function(err,result,row)
+				{
+					console.log("third part part")
+					if(result.Recipient	== username)
+					{
+						console.log("forth part part")
+						db.run(`delete from Message where MessageID = '${messageid}'`)
+						console.log("firth part part")
+						res.redirect('/user/messages');
+					}else
+					{
+					//render that they cant remove it because they arent the recipent
+					}					
+				});
+			}
+		});
+	});
+});
+
+
+
 
 router.get('/user/messages/send', function(req,res)
 {
@@ -463,10 +500,6 @@ router.post('/user/messages/send', function(req,res)
 	})
 	
 });
-
-
-
-
 
 
 

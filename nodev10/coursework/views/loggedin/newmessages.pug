@@ -3,6 +3,11 @@ extends layout
 		  
 block content
   h1= title
+  form(method="POST" action='')
+    div.form-group
+      label(for='MessageID') MessageID:
+      input#MessageID.form-control(type='text', name='MessageID')
+    button.btn.btn-primary(type='submit') Remove Message
   ul
     each val in messagesender
       li=val 
