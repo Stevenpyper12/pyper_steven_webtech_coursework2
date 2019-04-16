@@ -272,8 +272,65 @@ router.post('/login', function(req,res)
 });
 router.get('/user', function(req,res)
 {	
-	res.redirect('/user/messages');
+	var userscookie = req.cookies.UserInfo;
+	//thisisaadminaccount
+	db.serialize(function()
+	{
+		db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
+		{
+			if(result.UserName == "thisisaadminaccount")
+			{
+				//render a page that allows deleting of user accounts
+				res.render('loggedin/adminshizzle')
+			}else
+			{
+					res.redirect('/user/messages');
+			}
+		})
+		
+	})
 })
+router.post('/user', function(req,res)
+{
+	var userscookie = req.cookies.UserInfo;
+	var whattoremove = req.body.selectbox;
+	var idtoberemoved = req.body.ID;
+	
+	db.serialize(function()
+	{
+		if(whattoremove == 0)
+		{
+			db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
+			{
+				if(result.UserName == "thisisaadminaccount")
+				{
+					db.run(`delete from Message where MessageID = '${idtoberemoved}'`);
+				}else
+				{
+					res.clearCookie('UserInfo');
+				//get out of here ya haxor
+				}
+			})
+		}
+		else
+		{
+			db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
+			{
+				if(result.UserName == "thisisaadminaccount")
+				{
+					db.run(`delete from User where UserName = '${idtoberemoved}'`);
+					//remove user
+					res.redirect('/user');
+				}else
+				{
+					//get out of here ya haxor
+					res.clearCookie('UserInfo');
+				}
+			});
+		}
+	})
+	//this will be hte validation of the user being a admin, then allow him to remove the user in question
+});
 
 router.get('/user/messages', function(req,res)
 {
@@ -537,7 +594,6 @@ router.post('/user/messages/send', function(req,res)
 	})
 	
 });
-
 
 
 

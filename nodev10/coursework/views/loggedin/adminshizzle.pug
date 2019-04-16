@@ -1,0 +1,18 @@
+extends layout
+append head
+  script(src='/javascripts/changecipher.js')
+  script(src='/javascripts/changemethod.js')
+
+		  
+block content
+ h1= title
+  form(method="POST" action='')
+    div.form-group
+      label(for='ID') ID:
+      input#ID.form-control(type='text', name='ID')
+    div.form-group
+      label(for='cipher') Cipher Choice:
+      select(name= 'selectbox',id='selectbox')
+        option(value=0) Remove Message
+        option(value=1) Remove User
+    button.btn.btn-primary(type='submit') Remove Message or User
