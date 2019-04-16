@@ -96,7 +96,7 @@ router.post('/user/:test',function(req,res,next){
 	if(cookieparsing)
 	{
 		var testing = req.cookies.UserInfo.split("-")
-		if (testing[1] != DateKey)
+		if (testing[1] == DateKey)
 		{
 			res.clearCookie('UserInfo',{path:'/'});
 			res.redirect('/login');
@@ -116,7 +116,7 @@ router.post('/user/messages/:test',function(req,res,next){
 	if(cookieparsing)
 	{
 		var testing = req.cookies.UserInfo.split("-")
-		if (testing[1] != DateKey)
+		if (testing[1] == DateKey)
 		{
 			
 			res.clearCookie('UserInfo',{path:'/'});
@@ -134,36 +134,67 @@ router.post('/user/messages/:test',function(req,res,next){
 //all of these will require checking for logged in or not. modifyt these because userscookie might be cleared but still exist.
 router.get('/', function(req, res, next) 
 {
-	var userscookie = req.cookies.UserInfo;
-	if(userscookie)
+	try
 	{
-		res.render('loggedin/index', { title: 'Express' });
-	}else{
-		res.render('loggedout/index', { title: 'Express' });
+		var testing = req.cookies.UserInfo.split("-");
+		var userscookie = testing[1];
+		console.log(userscookie);
+		console.log(DateKey);
+		if(userscookie == DateKey)
+		{
+			res.render('loggedin/index', { title: 'Express' });
+		}
+		else
+		{
+			res.render('loggedout/index', { title: 'Express' });
+		}
 	}
-	
+	catch(err){
+		res.render('loggedout/signOptions', { title: 'Login', extra:""});
+		
+	}
 });
 
 
 router.get('/register', function(req,res)
 {	
-	var userscookie = req.cookies.UserInfo;
-	if(userscookie)
+	try
 	{
-		res.redirect('/user/messages');
-	}else{
-		res.render('loggedout/signOptions', { title: 'Register' ,extra:""});
+		var testing = req.cookies.UserInfo.split("-");
+		var userscookie = testing[1];
+		console.log(userscookie);
+		console.log(DateKey);
+		if(userscookie == DateKey)
+		{
+			res.redirect('/user/messages');
+		}else{
+			res.render('loggedout/signOptions', { title: 'Register' ,extra:""});
+		}
+	}
+	catch(err){
+		res.render('loggedout/signOptions', { title: 'Login', extra:""});
+		
 	}
 });
 
 router.get('/login', function(req,res)
 {
-	var userscookie = req.cookies.UserInfo;
-	if(userscookie)
+	try
 	{
-		res.redirect('/user/messages');
-	}else{
+		var testing = req.cookies.UserInfo.split("-");
+		var userscookie = testing[1];
+		console.log(userscookie);
+		console.log(DateKey);
+		if(userscookie == DateKey)
+		{
+			res.redirect('/user/messages');
+		}else{
+			res.render('loggedout/signOptions', { title: 'Login', extra:""});
+		}
+	}
+	catch(err){
 		res.render('loggedout/signOptions', { title: 'Login', extra:""});
+		
 	}
 });
 
@@ -403,9 +434,14 @@ router.post('/user/messages', function(req,res)
 						res.redirect('/user/messages');
 					}else
 					{
+							res.redirect('/user/messages');
 					//render that they cant remove it because they arent the recipent
 					}					
 				});
+			}else
+			{
+				res.clearCookie('UserInfo',{path:'/'});
+				res.redirect('/login');
 			}
 		});
 	});
@@ -494,6 +530,7 @@ router.post('/user/messages/send', function(req,res)
 				}else
 				{
 					res.clearCookie('UserInfo',{path:'/'});
+					res.redirect('/login');
 				}
 			})
 			
