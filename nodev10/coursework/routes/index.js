@@ -97,7 +97,7 @@ router.post('/user/:test',function(req,res,next){
 	if(cookieparsing)
 	{
 		var testing = req.cookies.UserInfo.split("-")
-		if (testing[1] == DateKey)
+		if (testing[1] != DateKey)
 		{
 			res.clearCookie('UserInfo',{path:'/'});
 			res.redirect('/login');
@@ -117,9 +117,8 @@ router.post('/user/messages/:test',function(req,res,next){
 	if(cookieparsing)
 	{
 		var testing = req.cookies.UserInfo.split("-")
-		if (testing[1] == DateKey)
+		if (testing[1] != DateKey)
 		{
-			
 			res.clearCookie('UserInfo',{path:'/'});
 			res.redirect('/login');
 		}else
@@ -135,67 +134,76 @@ router.post('/user/messages/:test',function(req,res,next){
 //all of these will require checking for logged in or not. modifyt these because userscookie might be cleared but still exist.
 router.get('/', function(req, res, next) 
 {
+	var testing;
+	var userscookie;
 	try
 	{
-		var testing = req.cookies.UserInfo.split("-");
-		var userscookie = testing[1];
-		console.log(userscookie);
-		console.log(DateKey);
+		testing = req.cookies.UserInfo.split("-");
+		userscookie = testing[1];
+	}catch(err)
+	{
+		userscookie = "definately not";
+	}finally
+	{
+		
 		if(userscookie == DateKey)
 		{
-			res.render('loggedin/index', { title: 'Express' });
+			res.redirect('/user/messages');
 		}
 		else
 		{
-			res.render('loggedout/index', { title: 'Express' });
+			res.render('loggedout/index', { title: 'Ciphered Messaging' });
 		}
-	}
-	catch(err){
-		res.render('loggedout/signOptions', { title: 'Login', extra:""});
-		
 	}
 });
 
 
 router.get('/register', function(req,res)
 {	
+	var testing;
+	var userscookie;
 	try
 	{
 		var testing = req.cookies.UserInfo.split("-");
 		var userscookie = testing[1];
-		console.log(userscookie);
-		console.log(DateKey);
+	}
+	catch(err)
+	{
+		userscookie="deefinately not";
+	}finally
+	{
 		if(userscookie == DateKey)
 		{
 			res.redirect('/user/messages');
-		}else{
+		}else
+		{
 			res.render('loggedout/signOptions', { title: 'Register' ,extra:""});
 		}
 	}
-	catch(err){
-		res.render('loggedout/signOptions', { title: 'Login', extra:""});
-		
-	}
+	
 });
 
 router.get('/login', function(req,res)
 {
+	var testing;
+	var userscookie;
 	try
 	{
 		var testing = req.cookies.UserInfo.split("-");
 		var userscookie = testing[1];
-		console.log(userscookie);
-		console.log(DateKey);
+	}
+	catch(err)
+	{
+		userscookie="nope not this time";
+	}finally
+	{
+		
 		if(userscookie == DateKey)
 		{
 			res.redirect('/user/messages');
 		}else{
 			res.render('loggedout/signOptions', { title: 'Login', extra:""});
 		}
-	}
-	catch(err){
-		res.render('loggedout/signOptions', { title: 'Login', extra:""});
-		
 	}
 });
 
@@ -210,7 +218,6 @@ router.post('/register', function(req,res)
 	var userpassword=req.body.userPassword;
 	var usercookie=cookieSignature.sign('username',usernames)+'-'+DateKey;
 	var finalPassword = bcrypt.hashSync(userpassword, 10);
-	console.log(finalPassword);
 	db.serialize(function(){
 		//'${usernames}'
 		db.get(`select distinct * from User where UserName = '${usernames}'`, function(err,result,row)
@@ -343,7 +350,7 @@ router.get('/user/messages', function(req,res)
 	var allmessages = [];
 	var finalcontent;
 	db.serialize(function(){
-		db.all(`select * from User JOIN Message on Recipient=username where cookie = '${userscookie}'`, function(err,result,row)
+		db.all(`select * from User JOIN Message on Recipient=username where cookie = '${userscookie}' ORDER BY MessageID DESC limit 20`, function(err,result,row)
 		{
 			if(err)
 			{
@@ -458,7 +465,7 @@ router.get('/user/messages', function(req,res)
 			}else
 			{
 				//replace this with a pug file displaying no messages
-				res.render('loggedin/message', { title: 'Your Messages', userMessages:allmessages});
+				res.render('loggedin/newmessages', { title: 'Your Messages',extra:"no messages" ,userMessages:allmessages});
 			}
 		});
 	})
@@ -466,7 +473,7 @@ router.get('/user/messages', function(req,res)
 
 router.post('/user/messages', function(req,res)
 {
-	console.log("do we even get ehre boi?")
+	//console.log("do we even get ehre boi?")
 	var userscookie = req.cookies.UserInfo;
 	var messageid = req.body.MessageID;
 	db.serialize(function(){
@@ -483,18 +490,25 @@ router.post('/user/messages', function(req,res)
 				var username = result.UserName;
 				db.get(`select * from Message where MessageID = '${messageid}'`, function(err,result,row)
 				{
-					if(result.Recipient	== username)
+					if(result)
 					{
-						db.run(`delete from Message where MessageID = '${messageid}'`)
-						res.redirect('/user/messages');
-					}else
-					{
+						if(result.Recipient	== username)
+						{
+							db.run(`delete from Message where MessageID = '${messageid}'`)
+							res.redirect('/user/messages');
+						}else
+						{
 							res.redirect('/user/messages');
 					//render that they cant remove it because they arent the recipent
-					}					
+						}
+					}else
+					{
+						res.redirect('/user/messages');
+					}						
 				});
 			}else
 			{
+				console('clearing cookie rather than redirecting');
 				res.clearCookie('UserInfo',{path:'/'});
 				res.redirect('/login');
 			}
@@ -521,34 +535,39 @@ router.post('/user/messages/send', function(req,res)
 	var userscookie = req.cookies.UserInfo;
 	var userrecipent = req.body.recipient;
 	var usercontent = req.body.messagecontent;
-	var usercipher = req.body.selectbox;	
-	var usermethod;
-	var userkey;
-	var finalcontent;
-	if(usercipher == 1)
+	var usercipher = req.body.selectbox;
+	if(usercontent == undefined|| usercipher == undefined || userrecipent==undefined)
 	{
-		usermethod=req.body.MethodSelector
-		if(usermethod == 1)
+		res.render('loggedin/successful', { title: 'Message Failed To Send!'});
+	}else
+	{		
+		var usermethod;
+		var userkey;
+		var finalcontent;
+		if(usercipher == 1)
 		{
-			userkey=req.body.InputKey;
-			finalcontent = Caesar(0,userkey,usercontent)
+			usermethod=req.body.MethodSelector
+			if(usermethod == 1)
+			{
+				userkey=req.body.InputKey;
+				finalcontent = Caesar(0,userkey,usercontent)
+			}else
+			{
+				userkey=13;
+				finalcontent = Caesar(0,userkey,usercontent)
+			}
+		}else
+		if(usercipher==2)
+		{
+			usermethod=req.body.MethodSelector;
+			userkey = req.body.key1+","+req.body.key2
+			finalcontent = Subsitition(0,req.body.key1,req.body.key2,usercontent)
 		}else
 		{
-			userkey=13;
-			finalcontent = Caesar(0,userkey,usercontent)
+			usermethod=req.body.MethodSelector;
+			//userkey = "NA";
+			finalcontent = morse(0,usercontent);
 		}
-	}else
-	if(usercipher==2)
-	{
-		usermethod=req.body.MethodSelector;
-		userkey = req.body.key1+","+req.body.key2
-		finalcontent = Subsitition(0,req.body.key1,req.body.key2,usercontent)
-	}else
-	{
-		usermethod=req.body.MethodSelector;
-		//userkey = "NA";
-		finalcontent = morse(0,usercontent);
-	}
 
 
 /*
@@ -557,39 +576,41 @@ router.post('/user/messages/send', function(req,res)
 	console.log(usernames);
 
 	*/
-	db.serialize(function(){
-		db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
-			{
-				if(err)
+		db.serialize(function()
+		{
+			db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
 				{
+					if(err)
+					{
 					//throw err;
-					console.log(result);
-				}
-			
-				if(result)
-				{	
-					sender = result.UserName
+						console.log(err);
+					}
+					//console.log(result);
+					if(result)
+					{	
+						sender = result.UserName
 				
-					db.get(`select distinct * from User where Username = '${userrecipent}'`, function(err,result,row)
-						{
-							if(result)
+						db.get(`select distinct * from User where Username = '${userrecipent}'`, function(err,result,row)
 							{
-								db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,MethodSelector,Key) VALUES ("${sender}","${userrecipent}","${finalcontent}","${usercipher}","${usermethod}","${userkey}")`);
-								res.render('loggedin/successful', { title: 'Message sucessfully sent!'});
-							}else
-							{
-								res.render('loggedin/successful', { title: 'Message Failed To Send!'});
-							}
-						});
+								if(result)
+								{
+									db.run(`insert into Message (Sender, Recipient, MessageContent,CipherUsed,MethodSelector,Key) VALUES ("${sender}","${userrecipent}","${finalcontent}","${usercipher}","${usermethod}","${userkey}")`);
+									res.render('loggedin/successful', { title: 'Message sucessfully sent!'});
+								}else
+								{
+									res.render('loggedin/successful', { title: 'Message Failed To Send!'});
+								}
+							});
 					
-				}else
-				{
-					res.clearCookie('UserInfo',{path:'/'});
-					res.redirect('/login');
-				}
-			})
+					}else
+					{	
+						res.clearCookie('UserInfo',{path:'/'});
+						res.redirect('/login');
+					}
+				})
 			
-	})
+		})
+	}
 	
 });
 
@@ -766,14 +787,26 @@ var morsealphamap = new Map().set("A",".-").set("B","-...").set("C","-.-.").set(
 .set("J",".---").set("K","-.-").set("L",".-..").set("M","--").set("N","-.")
 .set("O","---").set("P",".--.").set("Q","--.-").set("R",".-.").set("S","...")
 .set("T","-").set("U","..-").set("V","...-").set("W",".--").set("X","-..-")
-.set("Y","-.--").set("Z","--..");
+.set("Y","-.--").set("Z","--..")
+.set("0","-----").set("1",".----").set("2","..---")
+.set("3","...--").set("4","....-").set("5",".....").set("6","-....").set("7","--...")
+.set("8","---..").set("9","----.")
+.set("&",".-...").set("'",".----.").set("@",".--.-.").set(")","-.--.-").set("(","-.--.")
+.set(":","---...").set(",","--..--").set("=","-...-").set("!","-.-.--").set(".",".-.-.-")
+.set("-","-....-").set("+",".-.-.").set('"',".-..-.").set("?","..--..").set("/","-..-.").set("\\","-..-.");
+
 
 var morsemorsemap = new Map().set(".-","A").set("-...","B").set("-.-.","C").set("-..","D")
 .set(".","E").set("..-.","F").set("--.","G").set("....","H").set("..","I")
 .set(".---","J").set("-.-","K").set(".-..","L").set("--","M").set("-.","N")
 .set("---","O").set(".--.","P").set("--.-","Q").set(".-.","R").set("...","S")
 .set("-","T").set("..-","U").set("...-","V").set(".--","W").set("-..-","X")
-.set("-.--","Y").set("--..","Z");
+.set("-.--","Y").set("--..","Z")
+.set("-----","0").set(".----","1").set("..---","2").set("...--","3").set("....-","4").set(".....","5")
+.set("-....","6").set("--...","7").set("---..","8").set("----.","9")
+.set(".-...","&").set(".----.","'").set(".--.-.","@").set("-.--.-",")").set("-.--.","(")
+.set("---...",":").set("--..--",",").set("-...-","=").set("-.-.--","!").set(".-.-.-",".")
+.set("-....-","-").set(".-.-.","+").set(".-..-.",'"').set("..--..","?").set("-..-.","/").set("-..-.","\\");
 
 
 function morse(type,content)

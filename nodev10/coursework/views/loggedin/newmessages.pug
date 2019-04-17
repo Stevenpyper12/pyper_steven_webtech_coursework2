@@ -2,8 +2,9 @@ extends layout
 
 		  
 block content
-  h1= title
+  h1.heading= title
   form(method="POST" action='')
+    p here you can remove messages you have recieved.
     div.form-group
       label(for='MessageID') MessageID:
       input#MessageID.form-control(type='text', name='MessageID')
@@ -12,5 +13,3 @@ block content
     each val in messagesender
       li=val 
       br
-    
-  
