@@ -14,7 +14,7 @@ var DateKey = cookieSignature.sign('server',String(ServerStartDate));
 /* GET home page. */
 //i wish to have it noted that most of this was done before you allowed us to use any node packages and as such i dont(at time of writing) use any external modules which leads to some things being implemented in an nonoptiomial way, however as i have already restarted multiple times i will just be continuing while trying to use almost no modules(except maybe for user security)
 //now need to work on cleaning up user input by removing all of the user inputs, dont allow any punction or brackets or anyhtinbg
-
+//ALSO GO THROUGH AND REMOVE ALL THROW ERRORS AND JUST LOG THEM!
 router.get('/:anything',function(req,res,next){
 	var cookieparsing = req.cookies.UserInfo;
 	if(cookieparsing)
@@ -217,10 +217,11 @@ router.post('/register', function(req,res)
 			{
 				if(err)
 				{
-					throw err;
-					console.log(result);
+					//throw err;
+					console.log(err);
+					//res.render('loggedout/successful', { title: 'register failure, try again later'});
 				}
-				else if(result){
+				if(result){
 					//res.send("<meta http-equiv=\"refresh\" content= \"2;http://127.0.0.1:5000/register\">error creating account, username taken");
 					res.render('loggedout/signOptions', { title: 'Signup Failed',extra:"username already in use"});
 				}
@@ -247,8 +248,9 @@ router.post('/login', function(req,res)
 			{
 				if(err)
 				{
-					throw err;
-					console.log(result);
+					//throw err;
+					console.log(err);
+					//res.render('loggedout/signOptions', { title: 'Login Failed',extra:"try again later"});
 				}
 				if(result)
 				{
@@ -285,7 +287,7 @@ router.get('/user', function(req,res)
 				res.render('loggedin/adminshizzle')
 			}else
 			{
-					res.redirect('/user/messages');
+				res.redirect('/user/messages');
 			}
 		})
 		
@@ -309,6 +311,7 @@ router.post('/user', function(req,res)
 				}else
 				{
 					res.clearCookie('UserInfo');
+					res.redirect('/');
 				//get out of here ya haxor
 				}
 			})
@@ -326,6 +329,7 @@ router.post('/user', function(req,res)
 				{
 					//get out of here ya haxor
 					res.clearCookie('UserInfo');
+					res.redirect('/');
 				}
 			});
 		}
@@ -343,8 +347,8 @@ router.get('/user/messages', function(req,res)
 		{
 			if(err)
 			{
-				throw err;
-				console.log(result);
+				//throw err;
+				console.log(err);
 			}
 			if(result)
 			{	
@@ -469,26 +473,19 @@ router.post('/user/messages', function(req,res)
 		
 		db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
 		{
-			console.log("first part")
 			if(err)
 			{
-				throw err;
-				console.log(result);
+				//throw err;
+				console.log(err);
 			}
 			if(result)
 			{
-				console.log("second part")
 				var username = result.UserName;
-				console.log(username)
-				console.log(messageid)
 				db.get(`select * from Message where MessageID = '${messageid}'`, function(err,result,row)
 				{
-					console.log("third part part")
 					if(result.Recipient	== username)
 					{
-						console.log("forth part part")
 						db.run(`delete from Message where MessageID = '${messageid}'`)
-						console.log("firth part part")
 						res.redirect('/user/messages');
 					}else
 					{
@@ -565,7 +562,7 @@ router.post('/user/messages/send', function(req,res)
 			{
 				if(err)
 				{
-					throw err;
+					//throw err;
 					console.log(result);
 				}
 			
@@ -595,34 +592,6 @@ router.post('/user/messages/send', function(req,res)
 	})
 	
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
