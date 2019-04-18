@@ -363,7 +363,7 @@ router.get('/user/messages', function(req,res)
 			{	
 				
 				/*var sender = result.Sender;
-				var recipient = result.Recipient;
+	 			var recipient = result.Recipient;
 				var messagecontent = result.MessageContent;
 				var cipherused = result.CipherUsed;
 				var method = result.MethodSelector;
