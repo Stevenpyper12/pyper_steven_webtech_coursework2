@@ -1,0 +1,16 @@
+extends layout
+append head
+
+		  
+block content
+  h1= title
+  h3= extra
+  form(method="POST" action='')
+    div.form-group
+      label(for='oldpassword') oldpassword:
+      input#oldpassword.form-control(type='password', name='oldpassword')
+    div.form-group
+      label(for='newpassword') newpassword:
+      input#newpassword.form-control(type='password', name='newpassword')
+    div.form-group#InputArea
+    button.btn.btn-primary(type='submit') Send Message

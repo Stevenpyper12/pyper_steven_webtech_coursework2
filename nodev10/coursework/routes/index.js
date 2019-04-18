@@ -315,6 +315,7 @@ router.post('/user', function(req,res)
 				if(result.UserName == "thisisaadminaccount")
 				{
 					db.run(`delete from Message where MessageID = '${idtoberemoved}'`);
+					
 				}else
 				{
 					res.clearCookie('UserInfo');
@@ -330,6 +331,7 @@ router.post('/user', function(req,res)
 				if(result.UserName == "thisisaadminaccount")
 				{
 					db.run(`delete from User where UserName = '${idtoberemoved}'`);
+					db.run(`delete from Message where Recipient = '${idtoberemoved}'`);
 					//remove user
 					res.redirect('/user');
 				}else
@@ -516,9 +518,49 @@ router.post('/user/messages', function(req,res)
 	});
 });
 
-
-
-
+router.get('/user/update', function(req,res)
+{
+	res.render('loggedin/update', { title: 'Change Password?'});
+});
+router.post('/user/update', function(req,res)
+{
+	var userscookie = req.cookies.UserInfo;
+	var userpassword =req.body.newpassword;
+	
+	if(userpassword)
+	{
+		
+		db.serialize(function()
+		{
+		
+			db.get(`select distinct * from User where cookie = '${userscookie}'`, function(err,result,row)
+			{
+				if(err)
+				{
+				//throw err;
+					console.log(err);
+				}
+				var username = result.UserName;
+				
+				var finalPassword = bcrypt.hashSync(userpassword, 10);
+				if(result)
+				{
+					db.run(`update User set Password = '${finalPassword}' where Username = '${username}'`);
+					res.redirect('/user/messages');
+				}else
+				{
+					console('clearing cookie rather than redirecting');
+					res.clearCookie('UserInfo',{path:'/'});
+					res.redirect('/login');
+				}
+				
+			})
+		})
+	}else
+	{
+		res.redirect('/user/update')
+	}
+});
 router.get('/user/messages/send', function(req,res)
 {
 	res.render('loggedin/sendmessage', { title: 'Send A Messages'});
@@ -613,7 +655,6 @@ router.post('/user/messages/send', function(req,res)
 	}
 	
 });
-
 
 
 
